@@ -15,7 +15,6 @@ import sys
 import binascii
 import threading
 import numpy as np
-import matplotlib.pyplot as plt
 import socket
 import scipy.ndimage
 import sys, struct
@@ -60,7 +59,7 @@ class Ui_MainWindow(object):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         #self.s.settimeout(0.5)
         self.s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-        self.s.bind(("192.168.173.7",10000))
+        self.s.bind(("192.168.173.52",10000))
         self.s.listen(1)
         self.sc, self.addr = self.s.accept()
         print("conecto")
@@ -301,7 +300,7 @@ class Ui_MainWindow(object):
         #self.sc.settimeout(5)
         buf = self.sc.recv(6000)
         #self.sc.settimeout(0)
-        #print(len(buf))
+        print(len(buf))
         if len(buf)<6000:
         
             info = [buf[i:i+1] for i in range(0, len(buf), 1)]
@@ -344,9 +343,9 @@ class Ui_MainWindow(object):
       
       for i in range(self.filas):
         for j in range(self.columnas):
- #           matrizDistribucion[i][j] = matrizDistribucion[i][j]*5
-            if matrizDistribucion[i][j] < 100:
-                matrizDistribucion[i][j] = matrizDistribucion[i][j]*2
+            matrizDistribucion[i][j] = matrizDistribucion[i][j]*2
+            if matrizDistribucion[i][j] < 0:
+                matrizDistribucion[i][j] = matrizDistribucion[i][j]*1.2
             if matrizDistribucion[i][j] > 200:
                 matrizDistribucion[i][j] = 240
             if matrizDistribucion[i][j] >= maximoValor:
