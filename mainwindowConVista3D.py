@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'rigidoBotonesConexion.ui'
+# Form implementation generated from reading ui file 'mainwindowConVista3D.ui'
 #
 # Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
-
+from mpl_toolkits.mplot3d import Axes3D
 from PyQt5 import QtCore, QtGui, QtWidgets
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
@@ -14,12 +14,13 @@ import socket
 import sys
 import binascii
 import threading
+from multiprocessing import Process
 import numpy as np
 import socket
 import scipy.ndimage
 import sys, struct
 from pylab import *
-ion()
+##ion()
 
 maxint = 2 ** (struct.Struct('i').size * 8 - 1) - 1
 sys.setrecursionlimit(maxint)
@@ -27,10 +28,11 @@ sys.setrecursionlimit(maxint)
 class Ui_MainWindow(object):
     def __init__(self):
         print("init")
-        self.fig = plt.figure(facecolor='gainsboro')
+
+        self.fig = plt.figure()
         self.fig.canvas.draw()
         #self.fig.canvas.toolbar.pack_forget()
-        #plt.show(block=False)
+        plt.show(block=False)
         self.vectorDatosDistribucionPresion = []
         self.vectorDesencriptado = []
         self.iniciaTramaDeDatos = False
@@ -39,7 +41,7 @@ class Ui_MainWindow(object):
         axis = plt.gca()
         axis.get_xaxis().set_visible(False)
         axis.get_yaxis().set_visible(False)
-        matriz = [[0 for x in range(self.columnas)] for x in range(self.filas)] 
+        matriz = [[0 for x in range(48)] for x in range(48)] 
         matriz[0][0] = 255
         plt.set_cmap('jet')
         
@@ -53,22 +55,28 @@ class Ui_MainWindow(object):
         self.imagen = plt.imshow(data, interpolation = 'nearest')
         self.contador = 0
         self.contour_axis = plt.gca()
-        
+
+        self.fig3D = plt.figure()
+        self.fig3D.canvas.draw()
+        plt.show(block=False)
+        axis = plt.gca()
+        axis.get_xaxis().set_visible(False)
+        axis.get_yaxis().set_visible(False)
+
     def socketConnection(self):
         
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         #self.s.settimeout(0.5)
         self.s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-        self.s.bind(("192.168.0.124",10000))
+        self.s.bind(("192.168.137.167",10000))
         self.s.listen(1)
         self.sc, self.addr = self.s.accept()
         print("conecto")
     
     def setupUi(self, MainWindow):
-        
         MainWindow.setObjectName("MainWindow")
         MainWindow.setEnabled(True)
-        MainWindow.resize(1022, 953)
+        MainWindow.resize(1022, 853)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -234,15 +242,15 @@ class Ui_MainWindow(object):
         self.label.setScaledContents(True)
         self.label.setObjectName("label")
         self.gridLayoutWidget = QtWidgets.QWidget(self.centralWidget)
-        self.gridLayoutWidget.setGeometry(QtCore.QRect(10, 90, 1001, 751))
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(10, 120, 881, 721))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
-        
-        canvas = FigureCanvas(self.fig)
+
+        canvas = FigureCanvas(self.fig3D)
         self.gridLayout.addWidget(canvas)
-            
+        
         self.gridLayout.setContentsMargins(11, 11, 11, 11)
-        self.gridLayout.setSpacing(6)
+        self.gridLayout.setVerticalSpacing(6)
         self.gridLayout.setObjectName("gridLayout")
         self.pushButton = QtWidgets.QPushButton(self.centralWidget)
         self.pushButton.setGeometry(QtCore.QRect(0, 10, 113, 32))
@@ -250,6 +258,17 @@ class Ui_MainWindow(object):
         self.pushButton_2 = QtWidgets.QPushButton(self.centralWidget)
         self.pushButton_2.setGeometry(QtCore.QRect(0, 50, 113, 32))
         self.pushButton_2.setObjectName("pushButton_2")
+        self.gridLayoutWidget_2 = QtWidgets.QWidget(self.centralWidget)
+        self.gridLayoutWidget_2.setGeometry(QtCore.QRect(900, 120, 111, 91))
+        self.gridLayoutWidget_2.setObjectName("gridLayoutWidget_2")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.gridLayoutWidget_2)
+
+##        canvas1 = FigureCanvas(self.fig3D)
+##        self.gridLayout_2.addWidget(canvas1)
+        
+        self.gridLayout_2.setContentsMargins(11, 11, 11, 11)
+        self.gridLayout_2.setSpacing(6)
+        self.gridLayout_2.setObjectName("gridLayout_2")
         MainWindow.setCentralWidget(self.centralWidget)
 
         self.retranslateUi(MainWindow)
@@ -257,10 +276,9 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Distribución de presión: Sensor rigido"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Distribución de presión"))
         self.pushButton.setText(_translate("MainWindow", "Conectar"))
         self.pushButton.clicked.connect(self.conectarSensor)
-        
         self.pushButton_2.setText(_translate("MainWindow", "Desconectar"))
         self.pushButton_2.clicked.connect(self.desconectaSensor)
 
@@ -300,7 +318,7 @@ class Ui_MainWindow(object):
         #self.sc.settimeout(5)
         buf = self.sc.recv(6000)
         #self.sc.settimeout(0)
-        print(len(buf))
+        
         if len(buf)<6000:
         
             info = [buf[i:i+1] for i in range(0, len(buf), 1)]
@@ -311,7 +329,8 @@ class Ui_MainWindow(object):
                   self.vectorDatosDistribucionPresion.append(valorDecimal)
                   if valorDecimal == 255:
                     self.vectorDesencriptado = self.desencriptarVector(self.vectorDatosDistribucionPresion)
-                    self.dibujarDistribucionPresion(self.vectorDesencriptado)
+                    #self.dibujarDistribucionPresion(self.vectorDesencriptado)
+                    self.dibujarDistribucionEn3D(self.vectorDesencriptado)
                     self.vectorDatosDistribucionPresion = []
                     info = []
                     self.iniciaTramaDeDatos = False
@@ -325,67 +344,53 @@ class Ui_MainWindow(object):
             s.start()
         
     def dibujarDistribucionPresion(self, matrizDistribucion):
-      figure(1)
-      
-##      for i in range(self.filas):
-##        for j in range(self.columnas):
-##          if matrizDistribucion[i][j] < 0:
-##              matrizDistribucion[i][j] = 0
-##          else:
-##              matrizDistribucion[i][j] = matrizDistribucion[i][j] + 20
-            
-##      for i in range(self.filas-1):
-##        for j in range(self.columnas-1):
-##            if i > 0 and j > 0:
-##                matrizDistribucion[i][j] = (matrizDistribucion[i+1][j] + matrizDistribucion[i-1][j] + matrizDistribucion[i][j-1] + matrizDistribucion[i][j+1])/8
-##
+
       maximoValor = 0
       
       for i in range(self.filas):
         for j in range(self.columnas):
-            matrizDistribucion[i][j] = matrizDistribucion[i][j]*2.5
+            matrizDistribucion[i][j] = matrizDistribucion[i][j]*2
             if matrizDistribucion[i][j] < 0:
                 matrizDistribucion[i][j] = matrizDistribucion[i][j]*1.2
             if matrizDistribucion[i][j] > 200:
                 matrizDistribucion[i][j] = 240
             if matrizDistribucion[i][j] >= maximoValor:
                 maximoValor = matrizDistribucion[i][j]
-                
-      self.contador = self.contador + 1
-      if self.contador == 10:
-          self.contador = 0
       
-      data = scipy.ndimage.zoom(matrizDistribucion, 5)
-      #self.contour.set_array(data)
-      
-##
-##      for i in range(len(data)):
-##          for j in range(len(data[1])):
-##              data[i][j]=data[i][j] + 0
-##
-      
-      #plt.gca().collections[:] = []
-      #self.imagen.set_data(data)
- #     plt.contour(data, linewidth = 1)
- #     plt.imshow(data, interpolation = 'nearest')
+      data = scipy.ndimage.zoom(matrizDistribucion, 4)
       plt.set_cmap('jet')
       self.imagen.set_data(data)
-##      axis = plt.gca()
-##      axis.get_xaxis().set_visible(False)
-##      axis.get_yaxis().set_visible(False)
       
-      draw()
-      self.fig.canvas.draw()  
+      plt.draw()
+      self.fig.canvas.draw()
       
-      #plt.cla()
-      #plt.clf()
+    def dibujarDistribucionEn3D(self,matriz):
+        
+        X = np.arange(0, self.filas, 1)
+        Y = np.arange(0, self.columnas, 1)
+        X, Y = np.meshgrid(X, Y)
+        R = np.sqrt(X**2 + Y**2)
+        Z = matriz
+        ax = self.fig3D.gca(projection='3d')
+        ax.set_zlim(0, 255)
+        print(len(Z))
+        
+        surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm, linewidth=0, antialiased=False)
+
+        ax.zaxis.set_major_locator(LinearLocator(10))
+        ax.zaxis.set_major_formatter(FormatStrFormatter('%.01f'))
+        #fig.colorbar(surf, shrink=0.5, aspect=5)
+        self.fig3D.canvas.draw()
+        self.fig3D.tight_layout()
+        #plt.cla()
+        #plt.show()
       
     def conectarSensor(self):
         try:
             self.socketConnection()
-            s = threading.Timer(0.01, self.recibeDatos)
+            s = threading.Timer(0.5, self.recibeDatos)
             s.start()
-            print("conecta conecta")
+            print("Conecta")
         except:
             print("No conecta")
                       
@@ -406,6 +411,7 @@ if __name__ == "__main__":
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
+    ui.conectarSensor()
     MainWindow.show()
     sys.exit(app.exec_())
 
