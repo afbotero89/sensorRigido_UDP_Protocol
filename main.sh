@@ -1,0 +1,1 @@
+python3 /Applications/XAMPP/xamppfiles/htdocs/apps_rigido_flexible_UDP/sensorRigido_UDP_Protocol/recvPlataforma1.py & python3 /Applications/XAMPP/xamppfiles/htdocs/apps_rigido_flexible_UDP/sensorRigido_UDP_Protocol/appRigido1Sensor.py 
