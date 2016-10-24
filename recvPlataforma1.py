@@ -43,7 +43,7 @@ class Ui_MainWindow(object):
         #self.s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         #self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.UDP_IP = "192.168.0.125"
-        self.UDP_IP_CLIENT = "192.168.0.103"
+        self.UDP_IP_CLIENT = "192.168.0.102"
         self.UDP_PORT_CLIENT = 2233
         self.UDP_PORT = 10000
         print("escuchando...", self.UDP_IP, self.UDP_PORT)
@@ -128,7 +128,6 @@ class Ui_MainWindow(object):
             if self.sensorConnectionStatus == True:
                         
                 buf = self.s.recv(6000)
-                print(len(buf))
                 print(time.strftime("%H:%M:%S"))
                 
                 info = [buf[i:i+1] for i in range(0, len(buf), 1)]

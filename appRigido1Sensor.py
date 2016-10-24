@@ -61,7 +61,7 @@ class Ui_MainWindow(object):
         ax = plt.gca()
 
         divider = make_axes_locatable(ax)
-        cax = divider.append_axes("right", size="5%", pad=0.05)
+        cax = divider.append_axes("right", size="3%", pad=0.05)
 
         self.cbar = self.fig.colorbar(ax.imshow(matriz), ticks=[5,125,250],cax=cax)
         self.cbar.ax.set_yticklabels(['Baja','Medio','Alto'])
@@ -91,14 +91,14 @@ class Ui_MainWindow(object):
         
         MainWindow.setObjectName("MainWindow")
         MainWindow.setEnabled(True)
-        MainWindow.resize(1022, 953)
+        MainWindow.resize(922, 953)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
         MainWindow.setSizePolicy(sizePolicy)
-        MainWindow.setMinimumSize(QtCore.QSize(1020, 853))
-        MainWindow.setMaximumSize(QtCore.QSize(1022, 853))
+        MainWindow.setMinimumSize(QtCore.QSize(920, 853))
+        MainWindow.setMaximumSize(QtCore.QSize(922, 853))
         MainWindow.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.centralWidget = QtWidgets.QWidget(MainWindow)
         self.centralWidget.setObjectName("centralWidget")
@@ -252,21 +252,21 @@ class Ui_MainWindow(object):
         self.graphicsView_2.setObjectName("graphicsView_2")
 
         self.label = QtWidgets.QLabel(self.centralWidget)
-        self.label.setGeometry(QtCore.QRect(760, 18, 270, 61))
+        self.label.setGeometry(QtCore.QRect(650, 18, 280, 61))
         self.label.setText("")
         self.label.setPixmap(QtGui.QPixmap("/Applications/XAMPP/xamppfiles/htdocs/apps_rigido_flexible_UDP/appSensorFlexibleWebLocalMatplotlib/img/logoGIBIC.png"))
         self.label.setScaledContents(True)
         self.label.setObjectName("label")
 
         self.label_1 = QtWidgets.QLabel(self.centralWidget)
-        self.label_1.setGeometry(QtCore.QRect(425, 10, 311, 71))
+        self.label_1.setGeometry(QtCore.QRect(375, 10, 211, 71))
         self.label_1.setText("Sensor de presión")
         self.label_1.setStyleSheet("background-color: black; color:white; font size: 28pt; font-size: 22pt;")
         self.label_1.setScaledContents(True)
         self.label_1.setObjectName("label_1")
 
         self.gridLayoutWidget = QtWidgets.QWidget(self.centralWidget)
-        self.gridLayoutWidget.setGeometry(QtCore.QRect(-20, 90, 1051, 751))
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(-70, 90, 1051, 751))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
         
