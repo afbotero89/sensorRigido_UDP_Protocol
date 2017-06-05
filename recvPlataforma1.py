@@ -20,6 +20,15 @@ import time
 import sqlite3
 #ion()
 
+
+UDP_IP = sys.argv[1]
+UDP_PORT = int(sys.argv[2])
+
+UDP_IP_CLIENT = sys.argv[3]
+UDP_PORT_CLIENT = int(sys.argv[4])
+
+idSensor = sys.argv[5]
+
 maxint = 2 ** (struct.Struct('i').size * 8 - 1) - 1
 sys.setrecursionlimit(maxint)
 
@@ -39,13 +48,13 @@ class Ui_MainWindow(object):
     def socketConnection(self):
         
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        #self.s.settimeout(0.5)
-        #self.s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-        #self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.UDP_IP = "192.168.0.125"
-        self.UDP_IP_CLIENT = "192.168.0.150"
-        self.UDP_PORT_CLIENT = 2233
-        self.UDP_PORT = 10000
+
+        self.UDP_IP = UDP_IP
+        self.UDP_PORT = UDP_PORT
+
+        self.UDP_IP_CLIENT = UDP_IP_CLIENT
+        self.UDP_PORT_CLIENT = UDP_PORT_CLIENT
+
         print("escuchando...", self.UDP_IP, self.UDP_PORT)
         self.s.bind((self.UDP_IP, self.UDP_PORT))
         #self.s.listen(1)
@@ -71,13 +80,13 @@ class Ui_MainWindow(object):
                      (id text, data real, connectionStatus text)''')
         # Insert a row of data
         for row in self.c.execute("SELECT * FROM sensorRigido WHERE 1"):
-            if row[0] == '1':
+            if row[0] == idSensor:
                 self.campoSensor1Creado = True
 
         if self.campoSensor1Creado == False:
             self.campoSensor1Creado = True
-            self.c.execute("INSERT INTO sensorRigido VALUES ('1','initValue sensor 1','True')")
-        self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='1'" % 'True')
+            self.c.execute("INSERT INTO sensorRigido VALUES ('%s','initValue sensor 1','True')" % idSensor)
+        self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='%s'" % ('True',idSensor))
         self.conn.commit()
         
     def desencriptarVector(self,vector):
@@ -116,7 +125,7 @@ class Ui_MainWindow(object):
  #       self.sc.settimeout(None)
 
         while True:
-            for row in self.c.execute("SELECT * FROM sensorRigido WHERE `id`='1'"):
+            for row in self.c.execute("SELECT * FROM sensorRigido WHERE `id`='%s'" % idSensor):
                 if row[2] == 'True':
                     self.connectionRequest = True
                 else:
@@ -194,7 +203,7 @@ class Ui_MainWindow(object):
       data = scipy.ndimage.zoom(matrizDistribucion, 1)
       print("inserta datos base de datos")
       #self.c.execute("UPDATE `sensorRigido` SET `data`= '%s', `connectionStatus` = '%s' WHERE `id`='1'" % (matrizDistribucion,'True'))
-      self.c.execute("UPDATE `sensorRigido` SET `data`= '%s' WHERE `id`='1'" % matrizDistribucion)
+      self.c.execute("UPDATE `sensorRigido` SET `data`= '%s' WHERE `id`='%s'" % (matrizDistribucion, idSensor))
       self.conn.commit()
 
     def conectarSensor(self):
