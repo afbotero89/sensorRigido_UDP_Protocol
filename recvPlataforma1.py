@@ -42,10 +42,10 @@ class Ui_MainWindow(object):
         #self.s.settimeout(0.5)
         #self.s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
         #self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.UDP_IP = "192.168.0.124"
-        self.UDP_IP_CLIENT = "192.168.0.151"
+        self.UDP_IP = "192.168.0.125"
+        self.UDP_IP_CLIENT = "192.168.0.150"
         self.UDP_PORT_CLIENT = 2233
-        self.UDP_PORT = 10002
+        self.UDP_PORT = 10000
         print("escuchando...", self.UDP_IP, self.UDP_PORT)
         self.s.bind((self.UDP_IP, self.UDP_PORT))
         #self.s.listen(1)
@@ -98,7 +98,7 @@ class Ui_MainWindow(object):
                         if col == self.columnas:
                             col = 0;
                             fil = fil + 1;
-                            if fil > self.filas:
+                            if fil >= self.filas:
                                 return matriz;
                             matriz[fil][col] = 0;
                         col = col + 1;
@@ -185,7 +185,8 @@ class Ui_MainWindow(object):
             matrizDistribucion[i][j] = matrizDistribucion[i][j]*3
 
             if matrizDistribucion[i][j] > 200:
-                matrizDistribucion[i][j] = 240
+                pass
+                #matrizDistribucion[i][j] = 240
             if matrizDistribucion[i][j] >= maximoValor:
                 maximoValor = matrizDistribucion[i][j]
 
