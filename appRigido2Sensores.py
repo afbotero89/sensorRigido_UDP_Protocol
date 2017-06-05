@@ -35,7 +35,7 @@ sys.setrecursionlimit(maxint)
 class Ui_MainWindow(object):
     def __init__(self):
         print("init")
-        self.fig = plt.figure(facecolor='#BDBDBD',figsize=(18,9))
+        self.fig = plt.figure(facecolor='#222222',figsize=(18,9))
         self.fig.set_size_inches(18,9)
         ax = plt.Axes(self.fig, [0., 0., 1., 1.])
         ax.set_axis_off()
@@ -59,7 +59,7 @@ class Ui_MainWindow(object):
         matrizCompleta[0][0] = 255
         plt.set_cmap('jet')
 
-        self.cbar = self.fig.colorbar(plt.imshow(matrizCompleta), ticks=[5,125,250], fraction=0.024, pad=0.02)
+        self.cbar = self.fig.colorbar(plt.imshow(matrizCompleta), ticks=[5,125,250], fraction=0.024, pad=0.05)
         self.cbar.ax.set_yticklabels(['Baja','Medio','Alto'])
         #divider = make_axes_locatable(plt.gca())
         #cax = divider.append_axes("right","5%",pad="3%")
@@ -247,15 +247,15 @@ class Ui_MainWindow(object):
         self.graphicsView_2.setObjectName("graphicsView_2")
 
         self.label = QtWidgets.QLabel(self.centralWidget)
-        self.label.setGeometry(QtCore.QRect(1260, 18, 270, 61))
+        self.label.setGeometry(QtCore.QRect(1160, 18, 270, 61))
         self.label.setText("")
-        self.label.setPixmap(QtGui.QPixmap("/Applications/XAMPP/xamppfiles/htdocs/apps_rigido_flexible/appSensorFlexibleWebLocalMatplotlib/img/logoGIBIC.png"))
+        self.label.setPixmap(QtGui.QPixmap("/Users/EstebanGarcia/Developer/sensorRigido_UDP_Protocol/img/logoGIBIC.png"))
         self.label.setScaledContents(True)
         self.label.setObjectName("label")
 
         self.label_1 = QtWidgets.QLabel(self.centralWidget)
         self.label_1.setGeometry(QtCore.QRect(675, 10, 311, 71))
-        self.label_1.setText("Sensor de presión")
+        self.label_1.setText("Pressure sensor")
         self.label_1.setStyleSheet("background-color: black; color:white; font size: 28pt; font-size: 22pt;")
         self.label_1.setScaledContents(True)
         self.label_1.setObjectName("label_1")
@@ -274,7 +274,7 @@ class Ui_MainWindow(object):
 
         self.msg = QtWidgets.QMessageBox()
         self.msg.setIcon(QtWidgets.QMessageBox.Information)
-        self.msg.setText("Conectando sensor")
+        self.msg.setText("Connecting...")
         self.msg.setStandardButtons(QtWidgets.QMessageBox.Ok) 
 
         self.msg1 = QtWidgets.QMessageBox()
@@ -286,8 +286,9 @@ class Ui_MainWindow(object):
         self.sl.setMinimum(150)
         self.sl.setMaximum(250)
         self.sl.setValue(20)
-        self.sl.setGeometry(QtCore.QRect(1300, 93, 200, 31))
+        self.sl.setGeometry(QtCore.QRect(1170, 93, 200, 31))
         self.sl.setTickPosition(QtWidgets.QSlider.TicksBelow)
+        self.sl.setStyleSheet("background-color: #B0B0B0; border-radius: 10px;")
 
         # Radio button
         #self.radioButton = QtWidgets.QRadioButton(self.centralWidget)
@@ -326,26 +327,32 @@ class Ui_MainWindow(object):
         self.pushButton_1.setGeometry(QtCore.QRect(205, 35, 20, 20))
         self.pushButton_1.setObjectName("pushButton1")
 
-        self.pushButton_3 = QtWidgets.QPushButton(self.centralWidget)
-        self.pushButton_3.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-        self.pushButton_3.setGeometry(QtCore.QRect(235, 35, 20, 20))
-        self.pushButton_3.setObjectName("pushButton1")
+        #self.pushButton_3 = QtWidgets.QPushButton(self.centralWidget)
+        #self.pushButton_3.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
+        #self.pushButton_3.setGeometry(QtCore.QRect(235, 35, 20, 20))
+        #self.pushButton_3.setObjectName("pushButton1")
 
         self.pushButton_2 = QtWidgets.QPushButton(self.centralWidget)
-        self.pushButton_2.setStyleSheet("background-color: gainsboro; color: black; color:black;")
+        self.pushButton_2.setStyleSheet("background-color: gainsboro; color: black; color:black;border-radius: 10px;")
         self.pushButton_2.setGeometry(QtCore.QRect(10, 30, 140, 32))
         self.pushButton_2.setObjectName("pushButton_2")
 
         self.spinBox = QtWidgets.QSpinBox(self.centralWidget)
-        self.spinBox.setGeometry(QtCore.QRect(195, 93, 48, 31))
+        self.spinBox.setGeometry(QtCore.QRect(175, 93, 48, 31))
         self.spinBox.setMinimum(1)
-        self.spinBox.setMaximum(3)
-        self.spinBox.setValue(3)
+        self.spinBox.setMaximum(2)
+        self.spinBox.setValue(2)
         self.spinBox.setObjectName("spinBox")
+        self.spinBox.setStyleSheet("border-radius: 2px;")
 
         self.label_2 = QtWidgets.QLabel(self.centralWidget)
         self.label_2.setGeometry(QtCore.QRect(35, 100, 151, 16))
         self.label_2.setObjectName("label_2")
+        self.label_2.setStyleSheet("color:white;")
+
+        self.label_DivisionSensor = QtWidgets.QLabel(self.centralWidget)
+        self.label_DivisionSensor.setGeometry(QtCore.QRect(700, 143, 2, 665))
+        self.label_DivisionSensor.setStyleSheet("background-color: black;")
 
         MainWindow.setCentralWidget(self.centralWidget)
 
@@ -358,8 +365,8 @@ class Ui_MainWindow(object):
         self.pushButton.setText(_translate("MainWindow", ""))
         self.pushButton_2.clicked.connect(self.conectarSensor)
         
-        self.pushButton_2.setText(_translate("MainWindow", "Conectar sensor"))
-        self.label_2.setText(_translate("MainWindow", "Número de plataformas:"))
+        self.pushButton_2.setText(_translate("MainWindow", "Connect"))
+        self.label_2.setText(_translate("MainWindow", "Number of platforms:"))
         self.spinBox.valueChanged.connect(self.valueChangedSpinBox)
         self.sl.valueChanged.connect(self.valuechangeSlider)
         #self.groupRadioButton.buttonClicked[int].connect(self.ButtonGroupClicked)
@@ -378,7 +385,7 @@ class Ui_MainWindow(object):
 
             self.pushButton.setVisible(True)
             self.pushButton_1.setVisible(False)
-            self.pushButton_3.setVisible(False)
+ #           self.pushButton_3.setVisible(False)
 
             self.pushButton.setStyleSheet("background-color: red; border-radius: 10px;")
             self.pushButton_1.setStyleSheet("background-color: green; border-radius: 10px;")
@@ -393,6 +400,14 @@ class Ui_MainWindow(object):
             MainWindow.setMinimumSize(QtCore.QSize(1020, 853))
             MainWindow.setMaximumSize(QtCore.QSize(1022, 853))
 
+            self.label_1.setGeometry(QtCore.QRect(425, 10, 311, 71))
+            self.label.setGeometry(QtCore.QRect(740, 18, 270, 61))
+            self.spinBox.setGeometry(QtCore.QRect(45, 123, 48, 31))
+            self.label_2.setGeometry(QtCore.QRect(5, 100, 151, 16))
+
+            self.sl.setGeometry(QtCore.QRect(0, 200, 150, 31))
+            self.label_DivisionSensor.setHidden(True)
+
         elif (self.numberOfPlatforms == 2):
             #self.radioButton.setVisible(True)
             #self.radioButton_1.setVisible(True)
@@ -400,7 +415,7 @@ class Ui_MainWindow(object):
 
             self.pushButton.setVisible(True)
             self.pushButton_1.setVisible(True)
-            self.pushButton_3.setVisible(False)
+ #           self.pushButton_3.setVisible(False)
 
             #self.radioButton_2.setVisible(False)
             self.pushButton.setStyleSheet("background-color: green; border-radius: 10px;")
@@ -419,6 +434,17 @@ class Ui_MainWindow(object):
             MainWindow.resize(1522, 953)
             MainWindow.setMinimumSize(QtCore.QSize(1520, 853))
             MainWindow.setMaximumSize(QtCore.QSize(1522, 853))
+
+            self.spinBox.setGeometry(QtCore.QRect(175, 93, 48, 31))
+            self.label_2.setGeometry(QtCore.QRect(35, 100, 151, 16))
+
+            self.label_1.setGeometry(QtCore.QRect(675, 10, 311, 71))
+            MainWindow.resize(1522, 953)
+            self.label.setGeometry(QtCore.QRect(1160, 18, 270, 61))
+
+            self.sl.setGeometry(QtCore.QRect(1170, 93, 200, 31))
+            self.label_DivisionSensor.setHidden(False)
+
         elif (self.numberOfPlatforms == 3):
 
             #self.radioButton.setVisible(True)
@@ -427,7 +453,7 @@ class Ui_MainWindow(object):
 
             self.pushButton.setVisible(True)
             self.pushButton_1.setVisible(True)
-            self.pushButton_3.setVisible(True)
+ #           self.pushButton_3.setVisible(True)
 
             self.pushButton.setStyleSheet("background-color: green; border-radius: 10px;")
             self.pushButton_1.setStyleSheet("background-color: green; border-radius: 10px;")
@@ -435,7 +461,8 @@ class Ui_MainWindow(object):
             matriz = [[0 for x in range(self.columnas)] for x in range(self.filas)] 
             matriz[0][0] = 255
             matrizSensor2 = [[0 for x in range(self.columnas)] for x in range(self.filas)] 
-            matrizCompleta = np.concatenate((matriz,matrizSensor2),axis=1)
+            #matrizCompleta = np.concatenate((matriz,matrizSensor2),axis=1)
+            matrizCompleta = np.concatenate((matrizSensor2,matriz),axis=1)
             matrizCompleta[0][0] = 255
             data = scipy.ndimage.zoom(matrizCompleta, 3)
             self.imagen = plt.imshow(data, interpolation = 'nearest')
@@ -460,7 +487,7 @@ class Ui_MainWindow(object):
         
     def dibujarDistribucionPresion(self, matrizDistribucion):
         figure(1)
-
+        
         plt.set_cmap('jet')
         #for row in self.c.execute("SELECT * FROM sensorRigido WHERE `id`='1'"):
         for row in self.c.execute("SELECT * FROM sensorRigido WHERE 1"):
@@ -469,17 +496,23 @@ class Ui_MainWindow(object):
           if row[0] == '2':
               datosSensor2 = row[1]
 ##        try:
-        #matrizSensor1 = ast.literal_eval(datosSensor1)  
+        matrizSensor1 = ast.literal_eval(datosSensor1)
+        
         matrizSensor2 = ast.literal_eval(datosSensor2)
 
-        #rotate_imgMatriz1 = scipy.ndimage.rotate(matrizSensor1, 90)
-        rotate_imgMatriz2 = scipy.ndimage.rotate(matrizSensor2, 180)
+        rotate_imgMatriz1 = scipy.ndimage.rotate(matrizSensor1, -90)
+        
+        rotate_imgMatriz2 = scipy.ndimage.rotate(matrizSensor2, 90)
 
         matriz2espejo = np.array(rotate_imgMatriz2)
         matriz2espejo = matriz2espejo[::-1,:]
         matriz2espejo = matriz2espejo.tolist()
 
-        matrizCompleta = np.concatenate((matriz2espejo, matriz2espejo), axis=1)
+        matriz1espejo = np.array(rotate_imgMatriz1)
+        matriz1espejo = matriz1espejo[:,::-1]
+        matriz1espejo = matriz1espejo.tolist()
+
+        matrizCompleta = np.concatenate((matriz1espejo, matriz2espejo), axis=1)
         for i in range(48):
             for j in range(96):
                 if matrizCompleta[i][j] > 200:
@@ -489,13 +522,14 @@ class Ui_MainWindow(object):
             data = scipy.ndimage.zoom(matriz2espejo, 5)
             self.imagen.set_data(data)
         elif self.numberOfPlatforms == 2:
-            dataDatosCompletos = scipy.ndimage.zoom(matrizCompleta, 5)
+            print('plot 1')
+            dataDatosCompletos = scipy.ndimage.zoom(matrizCompleta, 4)
             self.imagen.set_data(dataDatosCompletos)
         elif self.numberOfPlatforms == 3:
-            dataDatosCompletos = scipy.ndimage.zoom(matrizCompleta, 5)
+            dataDatosCompletos = scipy.ndimage.zoom(matrizCompleta, 4)
             self.imagen.set_data(dataDatosCompletos)
 
-      
+        
     def conectarSensor(self):
 ##        try:
         if(self.sensorConectado == False):
@@ -509,13 +543,13 @@ class Ui_MainWindow(object):
 
                 self.pushButton.setStyleSheet("background-color: blue; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
                 self.pushButton_1.setStyleSheet("background-color: blue; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-                self.pushButton_3.setStyleSheet("background-color: blue; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
+ #               self.pushButton_3.setStyleSheet("background-color: blue; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
 
                 self.pushButton.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
                 self.pushButton_1.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-                self.pushButton_3.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
+ #               self.pushButton_3.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
                 #self.pushButton.setText("Sensor conectado")
-                self.pushButton_2.setText("Desconectar sensor")
+                self.pushButton_2.setText("Disconnect")
             except:
                 pass
             print("Sensor conectado")
@@ -532,9 +566,9 @@ class Ui_MainWindow(object):
                 self.sensorConectado = False
                 self.pushButton.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
                 self.pushButton_1.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-                self.pushButton_3.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
+ #               self.pushButton_3.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
                 #self.pushButton.setText("Conectar")
-                self.pushButton_2.setText("Conectar sensor")
+                self.pushButton_2.setText("Connect")
             except:
                 pass
                 
@@ -545,7 +579,7 @@ class Ui_MainWindow(object):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    app.setStyleSheet('QMainWindow{background-color: #BDBDBD; border:2px solid black;}')
+    app.setStyleSheet('QMainWindow{background-color: #222222; border:2px solid black;}')
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
