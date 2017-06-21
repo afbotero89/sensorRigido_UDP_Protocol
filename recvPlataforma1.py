@@ -18,7 +18,8 @@ import sys, struct
 #from pylab import *
 import time
 import sqlite3
-#ion()
+import COP
+import ast
 
 
 UDP_IP = sys.argv[1]
@@ -28,6 +29,7 @@ UDP_IP_CLIENT = sys.argv[3]
 UDP_PORT_CLIENT = int(sys.argv[4])
 
 idSensor = sys.argv[5]
+
 
 maxint = 2 ** (struct.Struct('i').size * 8 - 1) - 1
 sys.setrecursionlimit(maxint)
@@ -40,6 +42,8 @@ class Ui_MainWindow(object):
         self.iniciaTramaDeDatos = False
         self.columnas = 48;
         self.filas = 48;
+        self.old = [0,0,0]
+        self.COP = [0,0,0]
         matriz = [[0 for x in range(self.columnas)] for x in range(self.filas)] 
         matriz[0][0] = 255
         self.sensorConnectionStatus = False
@@ -54,11 +58,10 @@ class Ui_MainWindow(object):
 
         self.UDP_IP_CLIENT = UDP_IP_CLIENT
         self.UDP_PORT_CLIENT = UDP_PORT_CLIENT
+        #self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         print("escuchando...", self.UDP_IP, self.UDP_PORT)
         self.s.bind((self.UDP_IP, self.UDP_PORT))
-        #self.s.listen(1)
-        #self.sc, self.addr = self.s.accept()
         self.campoSensor1Creado = False
 
         for i in range(3):            
@@ -74,10 +77,9 @@ class Ui_MainWindow(object):
         print('sql database')
         self.conn = sqlite3.connect('distribucionPresionSensorRigido.db', timeout=10)
         self.c = self.conn.cursor()
-        #self.c.execute("DELETE FROM `sensorSuperior` WHERE 1")
         # Create table
         self.c.execute('''CREATE TABLE IF NOT EXISTS sensorRigido
-                     (id text, data real, connectionStatus text)''')
+                     (id text, data real, connectionStatus text, oldCOP real, currentCOP real)''')
         # Insert a row of data
         for row in self.c.execute("SELECT * FROM sensorRigido WHERE 1"):
             if row[0] == idSensor:
@@ -85,8 +87,8 @@ class Ui_MainWindow(object):
 
         if self.campoSensor1Creado == False:
             self.campoSensor1Creado = True
-            self.c.execute("INSERT INTO sensorRigido VALUES ('%s','initValue sensor 1','True')" % idSensor)
-        self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='%s'" % ('True',idSensor))
+            self.c.execute("INSERT INTO sensorRigido VALUES ('%s','initValue sensor 1','True', '%s', '%s' )" % (idSensor, self.old,self.COP))
+        self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='%s'" % ('True', idSensor))
         self.conn.commit()
         
     def desencriptarVector(self,vector):
@@ -107,7 +109,7 @@ class Ui_MainWindow(object):
                         if col == self.columnas:
                             col = 0;
                             fil = fil + 1;
-                            if fil >= self.filas:
+                            if fil > self.filas:
                                 return matriz;
                             matriz[fil][col] = 0;
                         col = col + 1;
@@ -122,7 +124,6 @@ class Ui_MainWindow(object):
                 banderacero = 0;
                 
     def recibeDatos(self):
- #       self.sc.settimeout(None)
 
         while True:
             for row in self.c.execute("SELECT * FROM sensorRigido WHERE `id`='%s'" % idSensor):
@@ -145,34 +146,36 @@ class Ui_MainWindow(object):
                     valorDecimal = int(binascii.hexlify(i),16)
                     
                     if self.iniciaTramaDeDatos == False:
-                      self.vectorDatosDistribucionPresion.append(valorDecimal)
-                      
-                      if valorDecimal == 255:
-                        self.primerByte = self.vectorDatosDistribucionPresion[len(self.vectorDatosDistribucionPresion) - 3]
-                        self.segundoByte = self.vectorDatosDistribucionPresion[len(self.vectorDatosDistribucionPresion) - 2]
-                        self.numeroBytes = self.primerByte*255 + self.segundoByte
 
-                        if(self.numeroBytes == len(self.vectorDatosDistribucionPresion) - 3):
+                        self.vectorDatosDistribucionPresion.append(valorDecimal)
 
-                            self.vectorDatosDistribucionPresion=self.vectorDatosDistribucionPresion[:len(self.vectorDatosDistribucionPresion)-1]
-                            self.vectorDatosDistribucionPresion=self.vectorDatosDistribucionPresion[:len(self.vectorDatosDistribucionPresion)-1]
-                            self.vectorDatosDistribucionPresion=self.vectorDatosDistribucionPresion[:len(self.vectorDatosDistribucionPresion)-1]
-                            self.vectorDatosDistribucionPresion.append(255)
-                            self.vectorDesencriptado = self.desencriptarVector(self.vectorDatosDistribucionPresion)
-                            self.dibujarDistribucionPresion(self.vectorDesencriptado)
-                            self.vectorDatosDistribucionPresion = []
-                            info = []
-                            self.iniciaTramaDeDatos = False
-                            self.s.sendto(bytes('*','utf-8'), (self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT))
-                            #self.sc.send(('*').encode())
-                            break
-                        else:
-                            self.vectorDatosDistribucionPresion = []
-                            info = []
-                            self.iniciaTramaDeDatos = False
-                            self.s.sendto(bytes('*','utf-8'), (self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT))
-                            #self.sc.send(('*').encode())
-                            break
+                        if valorDecimal == 255:
+
+                            self.primerByte = self.vectorDatosDistribucionPresion[len(self.vectorDatosDistribucionPresion) - 3]
+                            self.segundoByte = self.vectorDatosDistribucionPresion[len(self.vectorDatosDistribucionPresion) - 2]
+                            self.numeroBytes = self.primerByte*255 + self.segundoByte
+
+                            if(self.numeroBytes == len(self.vectorDatosDistribucionPresion) - 3):
+
+                                self.vectorDatosDistribucionPresion=self.vectorDatosDistribucionPresion[:len(self.vectorDatosDistribucionPresion)-1]
+                                self.vectorDatosDistribucionPresion=self.vectorDatosDistribucionPresion[:len(self.vectorDatosDistribucionPresion)-1]
+                                self.vectorDatosDistribucionPresion=self.vectorDatosDistribucionPresion[:len(self.vectorDatosDistribucionPresion)-1]
+                                self.vectorDatosDistribucionPresion.append(255)
+                                self.vectorDesencriptado = self.desencriptarVector(self.vectorDatosDistribucionPresion)
+                                self.dibujarDistribucionPresion(self.vectorDesencriptado)
+                                self.vectorDatosDistribucionPresion = []
+                                info = []
+                                self.iniciaTramaDeDatos = False
+                                self.s.sendto(bytes('*','utf-8'), (self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT))
+                                #self.sc.send(('*').encode())
+                                break
+                            else:
+                                self.vectorDatosDistribucionPresion = []
+                                info = []
+                                self.iniciaTramaDeDatos = False
+                                self.s.sendto(bytes('*','utf-8'), (self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT))
+                                #self.sc.send(('*').encode())
+                                break
 
                     if valorDecimal == 255 and self.iniciaTramaDeDatos == False:
                         self.s.sendto(bytes('*','utf-8'), (self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT))
@@ -187,27 +190,36 @@ class Ui_MainWindow(object):
         
     def dibujarDistribucionPresion(self, matrizDistribucion):
 ##
+      self.c.execute("SELECT * FROM sensorRigido")
+      row = self.c.fetchone()
+      old = row[4]
+      self.old = ast.literal_eval(old)
+
       maximoValor = 0
       
       for i in range(self.filas):
         for j in range(self.columnas):
-            matrizDistribucion[i][j] = matrizDistribucion[i][j]*3
+            matrizDistribucion[i][j] = matrizDistribucion[i][j]*1.5
 
             if matrizDistribucion[i][j] > 200:
-                pass
                 #matrizDistribucion[i][j] = 240
+                pass
             if matrizDistribucion[i][j] >= maximoValor:
                 maximoValor = matrizDistribucion[i][j]
 
       
+      (px,py,ppres) = COP.calcularCOP(matrizDistribucion)
+      self.COP = [px,py,ppres]
+      print(self.COP)
       data = scipy.ndimage.zoom(matrizDistribucion, 1)
       print("inserta datos base de datos")
       #self.c.execute("UPDATE `sensorRigido` SET `data`= '%s', `connectionStatus` = '%s' WHERE `id`='1'" % (matrizDistribucion,'True'))
-      self.c.execute("UPDATE `sensorRigido` SET `data`= '%s' WHERE `id`='%s'" % (matrizDistribucion, idSensor))
+      self.c.execute("UPDATE `sensorRigido` SET `data`= '%s', oldCOP = '%s',currentCOP='%s' WHERE `id`='%s'" % (matrizDistribucion, self.old, self.COP, idSensor))
       self.conn.commit()
 
     def conectarSensor(self):
         #try:
+            self.ConnectionStatus = True
             self.socketConnection()
             self.recibeDatos()
             #threading.Timer(0.01, self.recibeDatos()).start()
