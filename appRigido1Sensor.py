@@ -24,6 +24,9 @@ from pylab import *
 import time
 import sqlite3
 import ast
+
+idSensor = sys.argv[1]
+
 #import recvPlataforma1
 ion()
 
@@ -52,9 +55,9 @@ class Ui_MainWindow(object):
         axis.get_yaxis().set_visible(False)
         matriz = [[0 for x in range(self.columnas)] for x in range(self.filas)] 
         matriz[0][0] = 255
-        matrizSensor2 = [[0 for x in range(self.columnas)] for x in range(self.filas)] 
+        matrizSensor = [[0 for x in range(self.columnas)] for x in range(self.filas)] 
         #matrizSensor2[0][0] = 255
-        matrizCompleta = np.concatenate((matriz,matrizSensor2),axis=1)
+        matrizCompleta = np.concatenate((matriz,matrizSensor),axis=1)
         matrizCompleta[0][0] = 255
         plt.set_cmap('jet')
         self.ax = plt.gca()
@@ -348,17 +351,22 @@ class Ui_MainWindow(object):
         #for row in self.c.execute("SELECT * FROM sensorRigido WHERE `id`='1'"):
         for row in self.c.execute("SELECT * FROM sensorRigido WHERE 1"):
           if row[0] == '1':
-              datosSensor2 = row[1]
-          if row[0] == '2':
               datosSensor1 = row[1]
+          if row[0] == '2':
+              datosSensor2 = row[1]
 
-        matrizSensor2 = ast.literal_eval(datosSensor2)
+        matrizSensor = ast.literal_eval(datosSensor1)
+        if (idSensor == 1):
+            matrizSensor = ast.literal_eval(datosSensor1)
+        elif(idSensor == 2):
+            matrizSensor = ast.literal_eval(datosSensor2)
+
         COP = ast.literal_eval(row[4])
         old = ast.literal_eval(row[3])
         #print(COP)
         self.contadorImagenes = self.contadorImagenes + 1
 #        hora = time.strftime("%H:%M:%S")
-#        self.c1.execute("INSERT INTO sensorRigidoTransmision VALUES ('%s', '%s', '%s','%s')" % (self.contadorImagenes, matrizSensor2 , hora, COP))
+#        self.c1.execute("INSERT INTO sensorRigidoTransmision VALUES ('%s', '%s', '%s','%s')" % (self.contadorImagenes, matrizSensor , hora, COP))
 #        self.conn1.commit()
         del COP[2]
         del old[2]
@@ -371,7 +379,7 @@ class Ui_MainWindow(object):
                     COP[i] = (COP[i])*3
                     old[i] = (old[i])*3
         #rotate_imgMatriz1 = scipy.ndimage.rotate(matrizSensor1, 90)
-        rotate_imgMatriz2 = scipy.ndimage.rotate(matrizSensor2, 180)
+        rotate_imgMatriz2 = scipy.ndimage.rotate(matrizSensor, 180)
 
         matriz2espejo = np.array(rotate_imgMatriz2)
         matriz2espejo = matriz2espejo[::-1,:]
