@@ -397,7 +397,7 @@ class Ui_MainWindow(object):
               datosSensor1 = row[1]
 ##        try:
         #matrizSensor1 = ast.literal_eval(datosSensor1)  
-        matrizSensor2 = ast.literal_eval(datosSensor2)
+        matrizSensor2 = ast.literal_eval(datosSensor1)
 
         #rotate_imgMatriz1 = scipy.ndimage.rotate(matrizSensor1, 90)
         rotate_imgMatriz2 = scipy.ndimage.rotate(matrizSensor2, 180)

@@ -125,65 +125,68 @@ class Ui_MainWindow(object):
  #       self.sc.settimeout(None)
 
         while True:
-            for row in self.c.execute("SELECT * FROM sensorRigido WHERE `id`='%s'" % idSensor):
-                if row[2] == 'True':
-                    self.connectionRequest = True
-                else:
-                    self.sensorConnectionStatus = False
-                    self.connectionRequest = False
-                    #self.sc.close()
-                    self.s.close()
-                    print('cierra conexion')
-            if self.sensorConnectionStatus == True:
-                        
-                buf = self.s.recv(6000)
-                print(time.strftime("%H:%M:%S"))
-                
-                info = [buf[i:i+1] for i in range(0, len(buf), 1)]
-                #try:
-                for i in info:
-                    valorDecimal = int(binascii.hexlify(i),16)
+            try:
+                for row in self.c.execute("SELECT * FROM sensorRigido WHERE `id`='%s'" % idSensor):
+                    if row[2] == 'True':
+                        self.connectionRequest = True
+                    else:
+                        self.sensorConnectionStatus = False
+                        self.connectionRequest = False
+                        #self.sc.close()
+                        self.s.close()
+                        print('cierra conexion')
+                if self.sensorConnectionStatus == True:
+                            
+                    buf = self.s.recv(6000)
+                    print(time.strftime("%H:%M:%S"))
                     
-                    if self.iniciaTramaDeDatos == False:
-                      self.vectorDatosDistribucionPresion.append(valorDecimal)
-                      
-                      if valorDecimal == 255:
-                        self.primerByte = self.vectorDatosDistribucionPresion[len(self.vectorDatosDistribucionPresion) - 3]
-                        self.segundoByte = self.vectorDatosDistribucionPresion[len(self.vectorDatosDistribucionPresion) - 2]
-                        self.numeroBytes = self.primerByte*255 + self.segundoByte
+                    info = [buf[i:i+1] for i in range(0, len(buf), 1)]
+                    #try:
+                    for i in info:
+                        valorDecimal = int(binascii.hexlify(i),16)
+                        
+                        if self.iniciaTramaDeDatos == False:
+                          self.vectorDatosDistribucionPresion.append(valorDecimal)
+                          
+                          if valorDecimal == 255:
+                            self.primerByte = self.vectorDatosDistribucionPresion[len(self.vectorDatosDistribucionPresion) - 3]
+                            self.segundoByte = self.vectorDatosDistribucionPresion[len(self.vectorDatosDistribucionPresion) - 2]
+                            self.numeroBytes = self.primerByte*255 + self.segundoByte
 
-                        if(self.numeroBytes == len(self.vectorDatosDistribucionPresion) - 3):
+                            if(self.numeroBytes == len(self.vectorDatosDistribucionPresion) - 3):
 
-                            self.vectorDatosDistribucionPresion=self.vectorDatosDistribucionPresion[:len(self.vectorDatosDistribucionPresion)-1]
-                            self.vectorDatosDistribucionPresion=self.vectorDatosDistribucionPresion[:len(self.vectorDatosDistribucionPresion)-1]
-                            self.vectorDatosDistribucionPresion=self.vectorDatosDistribucionPresion[:len(self.vectorDatosDistribucionPresion)-1]
-                            self.vectorDatosDistribucionPresion.append(255)
-                            self.vectorDesencriptado = self.desencriptarVector(self.vectorDatosDistribucionPresion)
-                            self.dibujarDistribucionPresion(self.vectorDesencriptado)
-                            self.vectorDatosDistribucionPresion = []
-                            info = []
-                            self.iniciaTramaDeDatos = False
+                                self.vectorDatosDistribucionPresion=self.vectorDatosDistribucionPresion[:len(self.vectorDatosDistribucionPresion)-1]
+                                self.vectorDatosDistribucionPresion=self.vectorDatosDistribucionPresion[:len(self.vectorDatosDistribucionPresion)-1]
+                                self.vectorDatosDistribucionPresion=self.vectorDatosDistribucionPresion[:len(self.vectorDatosDistribucionPresion)-1]
+                                self.vectorDatosDistribucionPresion.append(255)
+                                self.vectorDesencriptado = self.desencriptarVector(self.vectorDatosDistribucionPresion)
+                                self.dibujarDistribucionPresion(self.vectorDesencriptado)
+                                self.vectorDatosDistribucionPresion = []
+                                info = []
+                                self.iniciaTramaDeDatos = False
+                                self.s.sendto(bytes('*','utf-8'), (self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT))
+                                #self.sc.send(('*').encode())
+                                break
+                            else:
+                                self.vectorDatosDistribucionPresion = []
+                                info = []
+                                self.iniciaTramaDeDatos = False
+                                self.s.sendto(bytes('*','utf-8'), (self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT))
+                                #self.sc.send(('*').encode())
+                                break
+
+                        if valorDecimal == 255 and self.iniciaTramaDeDatos == False:
                             self.s.sendto(bytes('*','utf-8'), (self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT))
                             #self.sc.send(('*').encode())
-                            break
-                        else:
-                            self.vectorDatosDistribucionPresion = []
-                            info = []
-                            self.iniciaTramaDeDatos = False
-                            self.s.sendto(bytes('*','utf-8'), (self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT))
-                            #self.sc.send(('*').encode())
-                            break
-
-                    if valorDecimal == 255 and self.iniciaTramaDeDatos == False:
-                        self.s.sendto(bytes('*','utf-8'), (self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT))
-                        #self.sc.send(('*').encode())
-                        self.iniciaTramaDeDatos = True
-                self.s.sendto(bytes('*','utf-8'), (self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT))
-                #self.sc.send(('*').encode())
-            else:
-                if self.connectionRequest == True:
-                    self.socketConnection()
-                print("sensor desconectado")
+                            self.iniciaTramaDeDatos = True
+                    self.s.sendto(bytes('*','utf-8'), (self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT))
+                    #self.sc.send(('*').encode())
+                else:
+                    if self.connectionRequest == True:
+                        self.socketConnection()
+                    print("sensor desconectado")
+            except:
+                pass
         
     def dibujarDistribucionPresion(self, matrizDistribucion):
 ##

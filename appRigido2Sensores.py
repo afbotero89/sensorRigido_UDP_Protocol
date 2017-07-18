@@ -255,7 +255,7 @@ class Ui_MainWindow(object):
 
         self.label_1 = QtWidgets.QLabel(self.centralWidget)
         self.label_1.setGeometry(QtCore.QRect(675, 10, 311, 71))
-        self.label_1.setText("Pressure sensor")
+        self.label_1.setText("Plantar pressure")
         self.label_1.setStyleSheet("background-color: black; color:white; font size: 28pt; font-size: 22pt;")
         self.label_1.setScaledContents(True)
         self.label_1.setObjectName("label_1")
