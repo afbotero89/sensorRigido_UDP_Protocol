@@ -60,12 +60,24 @@ class Ui_MainWindow(object):
         #self.s.listen(1)
         #self.sc, self.addr = self.s.accept()
         self.campoSensor1Creado = False
-
-        for i in range(3):            
+        self.s.settimeout(1)
+        while True:            
             time.sleep(2)
             self.s.sendto(bytes('*','utf-8'), (self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT))
+            try:
+                buf = self.s.recv(10)
+                print(buf)
+                if(len(buf)>5):
+                    self.s.sendto(bytes('*','utf-8'), (self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT))
+                    break
+            except:
+                print("Time out error")
+
+            
+
             #self.sc.send(('*').encode())
             print("conecto")
+        self.s.settimeout(None)
         self.connectionRequest = False
         self.sensorConnectionStatus = True
         self.sqlDataBase()
@@ -138,7 +150,7 @@ class Ui_MainWindow(object):
                 if self.sensorConnectionStatus == True:
                             
                     buf = self.s.recv(6000)
-                    print(time.strftime("%H:%M:%S"))
+                    print(buf)
                     
                     info = [buf[i:i+1] for i in range(0, len(buf), 1)]
                     #try:
@@ -194,7 +206,7 @@ class Ui_MainWindow(object):
       
       for i in range(self.filas):
         for j in range(self.columnas):
-            matrizDistribucion[i][j] = matrizDistribucion[i][j]*3
+            matrizDistribucion[i][j] = matrizDistribucion[i][j]*1
 
             if matrizDistribucion[i][j] > 200:
                 pass

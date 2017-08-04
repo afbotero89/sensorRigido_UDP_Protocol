@@ -1,2 +1,2 @@
 cd '/Applications/XAMPP/xamppfiles/htdocs/apps_rigido_flexible_UDP/sensorRigido_UDP_Protocol'
-python3 recvPlataforma1.py 192.168.0.125 10000 192.168.0.150 2233 1 & python3 recvPlataforma1.py 192.168.0.125 10001 192.168.0.151 2233 2 & python3 appRigido2Sensores.py
+python3 recvPlataforma1.py 192.168.0.124 10000 192.168.0.102 2233 1 & python3 recvPlataforma1.py 192.168.0.125 10001 192.168.0.151 2233 2 & python3 appRigido2Sensores.py

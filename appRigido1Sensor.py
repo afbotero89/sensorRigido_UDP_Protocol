@@ -392,9 +392,9 @@ class Ui_MainWindow(object):
         #for row in self.c.execute("SELECT * FROM sensorRigido WHERE `id`='1'"):
         for row in self.c.execute("SELECT * FROM sensorRigido WHERE 1"):
           if row[0] == '1':
-              datosSensor2 = row[1]
-          if row[0] == '2':
               datosSensor1 = row[1]
+          if row[0] == '2':
+              datosSensor2 = row[1]
 ##        try:
         #matrizSensor1 = ast.literal_eval(datosSensor1)  
         matrizSensor2 = ast.literal_eval(datosSensor1)
