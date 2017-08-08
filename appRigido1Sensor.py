@@ -27,6 +27,7 @@ import time
 import sqlite3
 import ast
 import time
+import recvPlataforma1
 ion()
 
 maxint = 2 ** (struct.Struct('i').size * 8 - 1) - 1
@@ -80,6 +81,15 @@ class Ui_MainWindow(object):
         self.defaultNumberOfPlatforms = 1
         self.numberOfPlatforms = 2
         self.intensityAdjustment = 240
+
+        self.UDP_IP = "192.168.0.124"
+        self.UDP_PORT = 10000
+
+        self.UDP_IP_CLIENT = "192.168.0.104"
+        self.UDP_PORT_CLIENT = 2233
+
+        self.idSensor = "1"
+        
         #plt.gca().invert_yaxis()
             
     def sqlDataBase(self):
@@ -386,42 +396,48 @@ class Ui_MainWindow(object):
 
         
     def dibujarDistribucionPresion(self, matrizDistribucion):
-        figure(1)
 
-        plt.set_cmap('jet')
-        #for row in self.c.execute("SELECT * FROM sensorRigido WHERE `id`='1'"):
-        for row in self.c.execute("SELECT * FROM sensorRigido WHERE 1"):
-          if row[0] == '1':
-              datosSensor1 = row[1]
-          if row[0] == '2':
-              datosSensor2 = row[1]
-##        try:
-        #matrizSensor1 = ast.literal_eval(datosSensor1)  
-        matrizSensor2 = ast.literal_eval(datosSensor1)
+        try:
+            #for row in self.c.execute("SELECT * FROM sensorRigido WHERE `id`='1'"):
+            for row in self.c.execute("SELECT * FROM sensorRigido WHERE 1"):
+                if row[0] == '1':
+                    datosSensor1 = row[1]
+                if row[0] == '2':
+                    datosSensor2 = row[1]
+                sensorConectado = row[2]
 
-        #rotate_imgMatriz1 = scipy.ndimage.rotate(matrizSensor1, 90)
-        rotate_imgMatriz2 = scipy.ndimage.rotate(matrizSensor2, 180)
+            if sensorConectado == "True":
+                #figure(1)
 
-        matriz2espejo = np.array(rotate_imgMatriz2)
-        matriz2espejo = matriz2espejo[::-1,:]
-        matriz2espejo = matriz2espejo.tolist()
+                #plt.set_cmap('jet')
 
-        matrizCompleta = np.concatenate((matriz2espejo, matriz2espejo), axis=1)
-        for i in range(48):
-            for j in range(96):
-                if matrizCompleta[i][j] > 200:
-                    matrizCompleta[i][j] = self.intensityAdjustment
+                matrizSensor2 = ast.literal_eval(datosSensor1)
 
-        if self.numberOfPlatforms == 1:
-            data = scipy.ndimage.zoom(matriz2espejo, 5)
-            self.imagen.set_data(data)
-        elif self.numberOfPlatforms == 2:
-            dataDatosCompletos = scipy.ndimage.zoom(matriz2espejo, 5)
-            self.imagen.set_data(dataDatosCompletos)
-        elif self.numberOfPlatforms == 3:
-            dataDatosCompletos = scipy.ndimage.zoom(matriz2espejo, 5)
-            self.imagen.set_data(dataDatosCompletos)
-        print("dibuja matriz")
+                #rotate_imgMatriz1 = scipy.ndimage.rotate(matrizSensor1, 90)
+                rotate_imgMatriz2 = scipy.ndimage.rotate(matrizSensor2, 180)
+
+                matriz2espejo = np.array(rotate_imgMatriz2)
+                matriz2espejo = matriz2espejo[::-1,:]
+                matriz2espejo = matriz2espejo.tolist()
+
+                matrizCompleta = np.concatenate((matriz2espejo, matriz2espejo), axis=1)
+                for i in range(48):
+                    for j in range(96):
+                        if matrizCompleta[i][j] > 200:
+                            matrizCompleta[i][j] = self.intensityAdjustment
+
+                if self.numberOfPlatforms == 1:
+                    data = scipy.ndimage.zoom(matriz2espejo, 5)
+                    self.imagen.set_data(data)
+                elif self.numberOfPlatforms == 2:
+                    dataDatosCompletos = scipy.ndimage.zoom(matriz2espejo, 5)
+                    self.imagen.set_data(dataDatosCompletos)
+                elif self.numberOfPlatforms == 3:
+                    dataDatosCompletos = scipy.ndimage.zoom(matriz2espejo, 5)
+                    self.imagen.set_data(dataDatosCompletos)
+                print("dibuja matriz", sensorConectado)
+        except:
+            pass
       
     def conectarSensor(self):
 ##        try:
@@ -429,8 +445,11 @@ class Ui_MainWindow(object):
             self.sensorConectado = True
             self.sqlDataBase()
 
+            self.t = threading.Thread(target = recvPlataforma1.Ui_MainWindow, args=(self.UDP_IP, self.UDP_PORT, self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT, self.idSensor,))
+            self.t.IsBackground = True;
+            self.t.start()
             try:
-                print('entro !!!')
+
                 self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='1'" % 'True')
                 self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='2'" % 'True')
 
@@ -449,13 +468,14 @@ class Ui_MainWindow(object):
             self.conn.commit()
 
             self.msg.exec_()
+            threading.Timer(0.01, self.recibeDatos).start()
 
         else:
+            self.sensorConectado = False
             try:
                 self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='1'" % 'False')
                 self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='2'" % 'False')
 
-                self.sensorConectado = False
                 self.pushButton.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
                 #self.pushButton_1.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
                 #self.pushButton_3.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
@@ -465,7 +485,7 @@ class Ui_MainWindow(object):
                 pass    
             self.conn.commit()
             print("sensor desconectado")
-        threading.Timer(0.01, self.recibeDatos).start()              
+                      
 
 if __name__ == "__main__":
     import sys

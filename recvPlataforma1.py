@@ -20,21 +20,26 @@ import time
 import sqlite3
 #ion()
 
+#UDP_IP = sys.argv[1]
+#UDP_PORT = int(sys.argv[2])
 
-UDP_IP = sys.argv[1]
-UDP_PORT = int(sys.argv[2])
+#UDP_IP_CLIENT = sys.argv[3]
+#UDP_PORT_CLIENT = int(sys.argv[4])
 
-UDP_IP_CLIENT = sys.argv[3]
-UDP_PORT_CLIENT = int(sys.argv[4])
-
-idSensor = sys.argv[5]
+#idSensor = sys.argv[5]
 
 maxint = 2 ** (struct.Struct('i').size * 8 - 1) - 1
 sys.setrecursionlimit(maxint)
 
 class Ui_MainWindow(object):
-    def __init__(self):
+    def __init__(self, UDP_IP, UDP_PORT, UDP_IP_CLIENT, UDP_PORT_CLIENT, idSensor):
         print("init")
+        self.UDP_IP = UDP_IP
+        self.UDP_PORT = UDP_PORT
+        self.UDP_IP_CLIENT = UDP_IP_CLIENT
+        self.UDP_PORT_CLIENT = UDP_PORT_CLIENT
+        self.idSensor = idSensor
+
         self.vectorDatosDistribucionPresion = []
         self.vectorDesencriptado = []
         self.iniciaTramaDeDatos = False
@@ -44,16 +49,11 @@ class Ui_MainWindow(object):
         matriz[0][0] = 255
         self.sensorConnectionStatus = False
         self.connectionRequest = False
+        self.conectarSensor()
         
     def socketConnection(self):
         
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-        self.UDP_IP = UDP_IP
-        self.UDP_PORT = UDP_PORT
-
-        self.UDP_IP_CLIENT = UDP_IP_CLIENT
-        self.UDP_PORT_CLIENT = UDP_PORT_CLIENT
 
         print("escuchando...", self.UDP_IP, self.UDP_PORT)
         self.s.bind((self.UDP_IP, self.UDP_PORT))
@@ -92,13 +92,13 @@ class Ui_MainWindow(object):
                      (id text, data real, connectionStatus text)''')
         # Insert a row of data
         for row in self.c.execute("SELECT * FROM sensorRigido WHERE 1"):
-            if row[0] == idSensor:
+            if row[0] == self.idSensor:
                 self.campoSensor1Creado = True
 
         if self.campoSensor1Creado == False:
             self.campoSensor1Creado = True
-            self.c.execute("INSERT INTO sensorRigido VALUES ('%s','initValue sensor 1','True')" % idSensor)
-        self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='%s'" % ('True',idSensor))
+            self.c.execute("INSERT INTO sensorRigido VALUES ('%s','initValue sensor 1','True')" % self.idSensor)
+        self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='%s'" % ('True',self.idSensor))
         self.conn.commit()
         
     def desencriptarVector(self,vector):
@@ -135,11 +135,11 @@ class Ui_MainWindow(object):
                 
     def recibeDatos(self):
  #       self.sc.settimeout(None)
-
         while True:
             try:
-                for row in self.c.execute("SELECT * FROM sensorRigido WHERE `id`='%s'" % idSensor):
+                for row in self.c.execute("SELECT * FROM sensorRigido WHERE `id`='%s'" % self.idSensor):
                     if row[2] == 'True':
+                        self.sensorConnectionStatus = True
                         self.connectionRequest = True
                     else:
                         self.sensorConnectionStatus = False
@@ -148,7 +148,7 @@ class Ui_MainWindow(object):
                         self.s.close()
                         print('cierra conexion')
                 if self.sensorConnectionStatus == True:
-                            
+      
                     buf = self.s.recv(6000)
                     print(buf)
                     
@@ -197,29 +197,32 @@ class Ui_MainWindow(object):
                     if self.connectionRequest == True:
                         self.socketConnection()
                     print("sensor desconectado")
+                    time.sleep(1)
             except:
                 pass
         
     def dibujarDistribucionPresion(self, matrizDistribucion):
-##
-      maximoValor = 0
-      
-      for i in range(self.filas):
-        for j in range(self.columnas):
-            matrizDistribucion[i][j] = matrizDistribucion[i][j]*1
 
-            if matrizDistribucion[i][j] > 200:
-                pass
-                #matrizDistribucion[i][j] = 240
-            if matrizDistribucion[i][j] >= maximoValor:
-                maximoValor = matrizDistribucion[i][j]
+        maximoValor = 0
+          
+        for i in range(self.filas):
 
-      
-      data = scipy.ndimage.zoom(matrizDistribucion, 1)
-      print("inserta datos base de datos")
-      #self.c.execute("UPDATE `sensorRigido` SET `data`= '%s', `connectionStatus` = '%s' WHERE `id`='1'" % (matrizDistribucion,'True'))
-      self.c.execute("UPDATE `sensorRigido` SET `data`= '%s' WHERE `id`='%s'" % (matrizDistribucion, idSensor))
-      self.conn.commit()
+            for j in range(self.columnas):
+
+                matrizDistribucion[i][j] = matrizDistribucion[i][j]*1
+
+                if matrizDistribucion[i][j] > 200:
+                    pass
+                    #matrizDistribucion[i][j] = 240
+                if matrizDistribucion[i][j] >= maximoValor:
+                    maximoValor = matrizDistribucion[i][j]
+
+          
+        data = scipy.ndimage.zoom(matrizDistribucion, 1)
+        print("inserta datos base de datos")
+        #self.c.execute("UPDATE `sensorRigido` SET `data`= '%s', `connectionStatus` = '%s' WHERE `id`='1'" % (matrizDistribucion,'True'))
+        self.c.execute("UPDATE `sensorRigido` SET `data`= '%s' WHERE `id`='%s'" % (matrizDistribucion, self.idSensor))
+        self.conn.commit()
 
     def conectarSensor(self):
         #try:
@@ -229,10 +232,4 @@ class Ui_MainWindow(object):
             print("conecta conecta")
         #except:
             #print("No conecta")
-
-if __name__ == "__main__":
-    import sys
-    ui = Ui_MainWindow()
-    ui.conectarSensor()
-    #ui.recibeDatos()
 
