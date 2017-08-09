@@ -77,7 +77,7 @@ class Ui_MainWindow(object):
 
             #self.sc.send(('*').encode())
             print("conecto")
-        self.s.settimeout(None)
+        self.s.settimeout(2)
         self.connectionRequest = False
         self.sensorConnectionStatus = True
         self.sqlDataBase()
@@ -142,11 +142,14 @@ class Ui_MainWindow(object):
                         self.sensorConnectionStatus = True
                         self.connectionRequest = True
                     else:
+                        print('cierra conexion')
                         self.sensorConnectionStatus = False
                         self.connectionRequest = False
                         #self.sc.close()
                         self.s.close()
-                        print('cierra conexion')
+                        break
+                        
+                time.sleep(0.05)
                 if self.sensorConnectionStatus == True:
       
                     buf = self.s.recv(6000)
@@ -197,7 +200,6 @@ class Ui_MainWindow(object):
                     if self.connectionRequest == True:
                         self.socketConnection()
                     print("sensor desconectado")
-                    time.sleep(1)
             except:
                 pass
         

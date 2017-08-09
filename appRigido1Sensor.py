@@ -85,10 +85,13 @@ class Ui_MainWindow(object):
         self.UDP_IP = "192.168.0.124"
         self.UDP_PORT = 10000
 
-        self.UDP_IP_CLIENT = "192.168.0.104"
+        self.UDP_IP_CLIENT = "192.168.0.111"
         self.UDP_PORT_CLIENT = 2233
 
         self.idSensor = "1"
+        self.visualizarPresion = False
+
+        self.green_red_Button = False
         
         #plt.gca().invert_yaxis()
             
@@ -348,7 +351,7 @@ class Ui_MainWindow(object):
         #self.pushButton_3.setObjectName("pushButton1")
 
         self.pushButton_2 = QtWidgets.QPushButton(self.centralWidget)
-        self.pushButton_2.setStyleSheet("background-color: gainsboro; color: black; color:black;border-radius: 10px")
+        self.pushButton_2.setStyleSheet("background-color: red; color: white; border-radius: 10px")
         self.pushButton_2.setGeometry(QtCore.QRect(10, 30, 140, 32))
         self.pushButton_2.setObjectName("pushButton_2")
 
@@ -378,6 +381,10 @@ class Ui_MainWindow(object):
         #self.label_2.setText(_translate("MainWindow", "Número de plataformas:"))
         #self.spinBox.valueChanged.connect(self.valueChangedSpinBox)
         self.sl.valueChanged.connect(self.valuechangeSlider)
+
+        self.t = threading.Thread(target = self.recibeDatos)
+        self.t.IsBackground = True;
+        self.t.start()
         #self.groupRadioButton.buttonClicked[int].connect(self.ButtonGroupClicked)
 
     #def ButtonGroupClicked(self,clicked):
@@ -389,53 +396,63 @@ class Ui_MainWindow(object):
         self.intensityAdjustment = self.sl.value()
 
     def recibeDatos(self):
-
-        self.dibujarDistribucionPresion(self.vectorDesencriptado)
+        while True:
+            self.dibujarDistribucionPresion(self.vectorDesencriptado)
+            time.sleep(0.05) 
         #print(time.strftime("%H:%M:%S"))
-        threading.Timer(0.01, self.recibeDatos).start()
+        #threading.Timer(0.1, self.recibeDatos).start()
 
         
     def dibujarDistribucionPresion(self, matrizDistribucion):
 
         try:
             #for row in self.c.execute("SELECT * FROM sensorRigido WHERE `id`='1'"):
-            for row in self.c.execute("SELECT * FROM sensorRigido WHERE 1"):
-                if row[0] == '1':
-                    datosSensor1 = row[1]
-                if row[0] == '2':
-                    datosSensor2 = row[1]
-                sensorConectado = row[2]
+            if(self.visualizarPresion == True):
+                for row in self.c.execute("SELECT * FROM sensorRigido WHERE 1"):
+                    if row[0] == '1':
+                        datosSensor1 = row[1]
+                    if row[0] == '2':
+                        datosSensor2 = row[1]
+                    sensorConectado = row[2]
+                   
+                if sensorConectado == "True":
+                    #figure(1)
 
-            if sensorConectado == "True":
-                #figure(1)
+                    #plt.set_cmap('jet')
+                    if(self.green_red_Button == False):
+                        self.green_red_Button = True
+                        self.pushButton_2.setStyleSheet("background-color: green; color: white; border-radius: 10px")
+                        self.pushButton_2.setText("Desconectar sensor")
+                        time.sleep(0.1)
+                        self.pushButton.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
 
-                #plt.set_cmap('jet')
+                    matrizSensor2 = ast.literal_eval(datosSensor1)
 
-                matrizSensor2 = ast.literal_eval(datosSensor1)
+                    #rotate_imgMatriz1 = scipy.ndimage.rotate(matrizSensor1, 90)
+                    rotate_imgMatriz2 = scipy.ndimage.rotate(matrizSensor2, 180)
 
-                #rotate_imgMatriz1 = scipy.ndimage.rotate(matrizSensor1, 90)
-                rotate_imgMatriz2 = scipy.ndimage.rotate(matrizSensor2, 180)
+                    matriz2espejo = np.array(rotate_imgMatriz2)
+                    matriz2espejo = matriz2espejo[::-1,:]
+                    matriz2espejo = matriz2espejo.tolist()
 
-                matriz2espejo = np.array(rotate_imgMatriz2)
-                matriz2espejo = matriz2espejo[::-1,:]
-                matriz2espejo = matriz2espejo.tolist()
+                    matrizCompleta = np.concatenate((matriz2espejo, matriz2espejo), axis=1)
+                    for i in range(48):
+                        for j in range(96):
+                            if matrizCompleta[i][j] > 200:
+                                matrizCompleta[i][j] = self.intensityAdjustment
 
-                matrizCompleta = np.concatenate((matriz2espejo, matriz2espejo), axis=1)
-                for i in range(48):
-                    for j in range(96):
-                        if matrizCompleta[i][j] > 200:
-                            matrizCompleta[i][j] = self.intensityAdjustment
-
-                if self.numberOfPlatforms == 1:
-                    data = scipy.ndimage.zoom(matriz2espejo, 5)
-                    self.imagen.set_data(data)
-                elif self.numberOfPlatforms == 2:
-                    dataDatosCompletos = scipy.ndimage.zoom(matriz2espejo, 5)
-                    self.imagen.set_data(dataDatosCompletos)
-                elif self.numberOfPlatforms == 3:
-                    dataDatosCompletos = scipy.ndimage.zoom(matriz2espejo, 5)
-                    self.imagen.set_data(dataDatosCompletos)
-                print("dibuja matriz", sensorConectado)
+                    if self.numberOfPlatforms == 1:
+                        data = scipy.ndimage.zoom(matriz2espejo, 5)
+                        self.imagen.set_data(data)
+                    elif self.numberOfPlatforms == 2:
+                        dataDatosCompletos = scipy.ndimage.zoom(matriz2espejo, 5)
+                        self.imagen.set_data(dataDatosCompletos)
+                    elif self.numberOfPlatforms == 3:
+                        dataDatosCompletos = scipy.ndimage.zoom(matriz2espejo, 5)
+                        self.imagen.set_data(dataDatosCompletos)
+                    print("plot matriz", sensorConectado)
+            else:
+                pass
         except:
             pass
       
@@ -444,31 +461,32 @@ class Ui_MainWindow(object):
         if(self.sensorConectado == False):
             self.sensorConectado = True
             self.sqlDataBase()
-
-            self.t = threading.Thread(target = recvPlataforma1.Ui_MainWindow, args=(self.UDP_IP, self.UDP_PORT, self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT, self.idSensor,))
-            self.t.IsBackground = True;
-            self.t.start()
             try:
 
-                self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='1'" % 'True')
-                self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='2'" % 'True')
+                #self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='1'" % 'True')
+                #self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='2'" % 'True')
 
-                self.pushButton.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
                 #self.pushButton_1.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
                 #self.pushButton_3.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
 
-                self.pushButton.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
                 #self.pushButton_1.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
                 #self.pushButton_3.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
                 #self.pushButton.setText("Sensor conectado")
-                self.pushButton_2.setText("Desconectar sensor")
+                self.pushButton_2.setText("Conectando...")
+                self.pushButton_2.setStyleSheet("background-color: blue; color: white; border-radius: 10px")
+                self.pushButton.setStyleSheet("background-color: blue; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
+                self.visualizarPresion = True
+
+                self.t = threading.Thread(target = recvPlataforma1.Ui_MainWindow, args=(self.UDP_IP, self.UDP_PORT, self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT, self.idSensor,))
+                self.t.IsBackground = True;
+                self.t.start()
+
             except:
                 pass
             print("Sensor conectado")
             self.conn.commit()
 
-            self.msg.exec_()
-            threading.Timer(0.01, self.recibeDatos).start()
+            #self.msg.exec_()
 
         else:
             self.sensorConectado = False
@@ -477,10 +495,13 @@ class Ui_MainWindow(object):
                 self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='2'" % 'False')
 
                 self.pushButton.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
+                self.pushButton_2.setStyleSheet("background-color: red; color: white; border-radius: 10px")
                 #self.pushButton_1.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
                 #self.pushButton_3.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
                 #self.pushButton.setText("Conectar")
                 self.pushButton_2.setText("Conectar sensor")
+                self.visualizarPresion = False
+                self.green_red_Button = False
             except:
                 pass    
             self.conn.commit()
