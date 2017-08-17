@@ -28,6 +28,7 @@ import sqlite3
 import ast
 import time
 import recvPlataforma1
+import ast
 ion()
 
 maxint = 2 ** (struct.Struct('i').size * 8 - 1) - 1
@@ -38,9 +39,9 @@ class Ui_MainWindow(object):
         print("init")
         self.fig = plt.figure(facecolor='#222222',figsize=(9,9))
         self.fig.set_size_inches(9,9)
-        ax = plt.Axes(self.fig, [0., 0., 1., 1.])
-        ax.set_axis_off()
-        self.fig.add_axes(ax)
+        self.ax = plt.Axes(self.fig, [0., 0., 1., 1.])
+        self.ax.set_axis_off()
+        self.fig.add_axes(self.ax)
         self.fig.canvas.draw()
         #self.fig.canvas.toolbar.pack_forget()
         #plt.show(block=False)
@@ -49,6 +50,7 @@ class Ui_MainWindow(object):
         self.iniciaTramaDeDatos = False
         self.columnas = 48;
         self.filas = 48;
+        self.era = []
         axis = plt.gca()
         axis.get_xaxis().set_visible(False)
         axis.get_yaxis().set_visible(False)
@@ -59,12 +61,12 @@ class Ui_MainWindow(object):
         matrizCompleta = np.concatenate((matriz,matrizSensor2),axis=1)
         matrizCompleta[0][0] = 255
         plt.set_cmap('jet')
-        ax = plt.gca()
+        self.ax = plt.gca()
 
-        divider = make_axes_locatable(ax)
+        divider = make_axes_locatable(self.ax)
         cax = divider.append_axes("right", size="3%", pad=0.05)
 
-        self.cbar = self.fig.colorbar(ax.imshow(matriz), ticks=[5,125,250],cax=cax)
+        self.cbar = self.fig.colorbar(self.ax.imshow(matriz), ticks=[5,125,250],cax=cax)
         self.cbar.ax.set_yticklabels(['Baja','Medio','Alto'])
         self.cbar.ax.tick_params(labelcolor='w', labelsize=12)
         #divider = make_axes_locatable(plt.gca())
@@ -74,7 +76,7 @@ class Ui_MainWindow(object):
         self.initData = scipy.ndimage.zoom(matriz, 3)
         #self.contour = plt.contour(data)
         
-        self.imagen = ax.imshow(self.initData, interpolation = 'nearest')
+        self.imagen = self.ax.imshow(self.initData, interpolation = 'nearest')
         self.contador = 0
         self.contour_axis = plt.gca()
         self.sensorConectado = False
@@ -84,15 +86,17 @@ class Ui_MainWindow(object):
 
         # Parametros de comunicacion
         self.UDP_IP = "192.168.0.124"
-        self.UDP_PORT = 10001
+        self.UDP_PORT = 10000
 
-        self.UDP_IP_CLIENT = "192.168.0.101"
+        self.UDP_IP_CLIENT = "192.168.0.107"
         self.UDP_PORT_CLIENT = 2233
 
         self.idSensor = "1"
         self.visualizarPresion = False
 
         self.green_red_Button = False
+
+        self.activePressureVectors = False
         
         #plt.gca().invert_yaxis()
             
@@ -302,17 +306,10 @@ class Ui_MainWindow(object):
         self.msg1.setText("Sensor desconectado")
         self.msg1.setStandardButtons(QtWidgets.QMessageBox.Ok) 
 
-        self.sl = QtWidgets.QSlider(Qt.Horizontal, self.centralWidget)
-        self.sl.setMinimum(150)
-        self.sl.setMaximum(250)
-        self.sl.setValue(20)
-        self.sl.setGeometry(QtCore.QRect(1300, 93, 200, 31))
-        self.sl.setTickPosition(QtWidgets.QSlider.TicksBelow) 
-
         # Push button
         self.pushButton = QtWidgets.QPushButton(self.centralWidget)
         self.pushButton.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-        self.pushButton.setGeometry(QtCore.QRect(175, 35, 20, 20))
+        self.pushButton.setGeometry(QtCore.QRect(165, 35, 20, 20))
         self.pushButton.setObjectName("pushButton")
 
 
@@ -320,6 +317,12 @@ class Ui_MainWindow(object):
         self.connectedSensor.setStyleSheet("background-color: red; color: white; border-radius: 10px")
         self.connectedSensor.setGeometry(QtCore.QRect(10, 30, 140, 32))
         self.connectedSensor.setObjectName("connectedSensor")
+
+        self.pushButtonPressureVector = QtWidgets.QPushButton(self.centralWidget)
+        self.pushButtonPressureVector.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
+        self.pushButtonPressureVector.setGeometry(QtCore.QRect(200, 30, 120, 32))
+        self.pushButtonPressureVector.setObjectName("pushButtonPressureVector")
+        self.pushButtonPressureVector.setText("ON Vectors")
 
         MainWindow.setCentralWidget(self.centralWidget)
 
@@ -331,11 +334,10 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "GIBIC group"))
         self.pushButton.setText(_translate("MainWindow", ""))
         self.connectedSensor.clicked.connect(self.conectarSensor)
+        self.pushButtonPressureVector.clicked.connect(self.pressureVectors)
         
         self.connectedSensor.setText(_translate("MainWindow", "Conectar sensor"))
         #self.label_2.setText(_translate("MainWindow", "Número de plataformas:"))
-        #self.spinBox.valueChanged.connect(self.valueChangedSpinBox)
-        self.sl.valueChanged.connect(self.valuechangeSlider)
 
         self.t = threading.Thread(target = self.recibeDatos)
         self.t.IsBackground = True;
@@ -344,11 +346,15 @@ class Ui_MainWindow(object):
 
     #def ButtonGroupClicked(self,clicked):
         #print("radio button clicked",clicked*(-1))
-
-    def valuechangeSlider(self):
-        print("value change slider")
-        print(self.sl.value())
-        self.intensityAdjustment = self.sl.value()
+    def pressureVectors(self):
+        if(self.activePressureVectors == False):
+            self.activePressureVectors = True
+            self.pushButtonPressureVector.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
+            self.pushButtonPressureVector.setText("ON Vectors")
+        else:
+            self.activePressureVectors = False
+            self.pushButtonPressureVector.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
+            self.pushButtonPressureVector.setText("OFF Vectors")
 
     def recibeDatos(self):
         while True:
@@ -371,9 +377,7 @@ class Ui_MainWindow(object):
                     sensorConectado = row[2]
                    
                 if sensorConectado == "True":
-                    #figure(1)
 
-                    #plt.set_cmap('jet')
                     if(self.green_red_Button == False):
                         self.green_red_Button = True
                         self.connectedSensor.setStyleSheet("background-color: green; color: white; border-radius: 10px")
@@ -382,7 +386,19 @@ class Ui_MainWindow(object):
                         self.pushButton.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
 
                     matrizSensor2 = ast.literal_eval(datosSensor1)
+                    COP = ast.literal_eval(row[4])
+                    old = ast.literal_eval(row[3])
 
+                    del COP[2]
+                    del old[2]
+                    for i in range (0,2):
+                        if (old != [0, 0] and COP!=[0, 0]):
+                            if i == 1:
+                                COP[i] = (47-COP[i])*3
+                                old[i] = (47-old[i])*3
+                            else:
+                                COP[i] = (COP[i])*3
+                                old[i] = (old[i])*3
                     #rotate_imgMatriz1 = scipy.ndimage.rotate(matrizSensor1, 90)
                     rotate_imgMatriz2 = scipy.ndimage.rotate(matrizSensor2, 180)
 
@@ -396,16 +412,31 @@ class Ui_MainWindow(object):
                             if matrizCompleta[i][j] > 200:
                                 matrizCompleta[i][j] = self.intensityAdjustment
 
-                    if self.numberOfPlatforms == 1:
-                        data = scipy.ndimage.zoom(matriz2espejo, 5)
-                        self.imagen.set_data(data)
-                    elif self.numberOfPlatforms == 2:
+                    if(self.activePressureVectors == False):
                         dataDatosCompletos = scipy.ndimage.zoom(matriz2espejo, 5)
                         self.imagen.set_data(dataDatosCompletos)
-                    elif self.numberOfPlatforms == 3:
+                    else:    
                         dataDatosCompletos = scipy.ndimage.zoom(matriz2espejo, 5)
+                        
                         self.imagen.set_data(dataDatosCompletos)
-                    print("plot matriz", sensorConectado)
+                        if (old != [0, 0] and COP!=[0, 0]):
+                            self.era.append(self.ax.plot([old[1],COP[1]],[old[0],COP[0]],color = 'white', marker = 'o',linewidth=3.0))
+
+                            if (len(self.era)>1):
+                                self.ax.lines.pop(0)
+
+                    print("plot matriz", sensorConectado, self.activePressureVectors)
+
+                    try:
+                        if COP == [0,0]:
+                            self.ax.lines.pop(0)
+                            self.era = []
+                    except:
+                        pass
+
+                    figure(1)
+
+                    plt.set_cmap('jet')                        
             else:
                 pass
         except:

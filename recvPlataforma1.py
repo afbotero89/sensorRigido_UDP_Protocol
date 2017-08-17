@@ -18,6 +18,8 @@ import sys, struct
 #from pylab import *
 import time
 import sqlite3
+import COP
+import ast
 #ion()
 
 #UDP_IP = sys.argv[1]
@@ -45,6 +47,8 @@ class Ui_MainWindow(object):
         self.iniciaTramaDeDatos = False
         self.columnas = 48;
         self.filas = 48;
+        self.old = [0,0,0]
+        self.COP = [0,0,0]
         matriz = [[0 for x in range(self.columnas)] for x in range(self.filas)] 
         matriz[0][0] = 255
         self.sensorConnectionStatus = False
@@ -66,7 +70,6 @@ class Ui_MainWindow(object):
             self.s.sendto(bytes('*','utf-8'), (self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT))
             try:
                 buf = self.s.recv(10)
-                print(buf)
                 if(len(buf)>5):
                     self.s.sendto(bytes('*','utf-8'), (self.UDP_IP_CLIENT, self.UDP_PORT_CLIENT))
                     break
@@ -86,19 +89,18 @@ class Ui_MainWindow(object):
         print('sql database')
         self.conn = sqlite3.connect('distribucionPresionSensorRigido.db', timeout=10)
         self.c = self.conn.cursor()
-        #self.c.execute("DELETE FROM `sensorSuperior` WHERE 1")
         # Create table
         self.c.execute('''CREATE TABLE IF NOT EXISTS sensorRigido
-                     (id text, data real, connectionStatus text)''')
+                     (id text, data real, connectionStatus text, oldCOP real, currentCOP real)''')
         # Insert a row of data
         for row in self.c.execute("SELECT * FROM sensorRigido WHERE 1"):
-            if row[0] == self.idSensor:
+            if row[0] == '1':
                 self.campoSensor1Creado = True
 
         if self.campoSensor1Creado == False:
             self.campoSensor1Creado = True
-            self.c.execute("INSERT INTO sensorRigido VALUES ('%s','initValue sensor 1','True')" % self.idSensor)
-        self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='%s'" % ('True',self.idSensor))
+            self.c.execute("INSERT INTO sensorRigido VALUES ('%s','initValue sensor 1','True', '%s', '%s' )" % (1, self.old,self.COP))
+        self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='1'" % 'True')
         self.conn.commit()
         
     def desencriptarVector(self,vector):
@@ -153,7 +155,6 @@ class Ui_MainWindow(object):
                 if self.sensorConnectionStatus == True:
       
                     buf = self.s.recv(6000)
-                    print(buf)
                     
                     info = [buf[i:i+1] for i in range(0, len(buf), 1)]
                     #try:
@@ -206,7 +207,12 @@ class Ui_MainWindow(object):
     def dibujarDistribucionPresion(self, matrizDistribucion):
 
         maximoValor = 0
-          
+
+        self.c.execute("SELECT * FROM sensorRigido")
+        row = self.c.fetchone()
+        old = row[4]
+        self.old = ast.literal_eval(old)
+
         for i in range(self.filas):
 
             for j in range(self.columnas):
@@ -219,11 +225,13 @@ class Ui_MainWindow(object):
                 if matrizDistribucion[i][j] >= maximoValor:
                     maximoValor = matrizDistribucion[i][j]
 
-          
+        (px,py,ppres) = COP.calcularCOP(matrizDistribucion)
+        self.COP = [px,py,ppres]
+        print(self.COP)  
         data = scipy.ndimage.zoom(matrizDistribucion, 1)
         print("inserta datos base de datos")
         #self.c.execute("UPDATE `sensorRigido` SET `data`= '%s', `connectionStatus` = '%s' WHERE `id`='1'" % (matrizDistribucion,'True'))
-        self.c.execute("UPDATE `sensorRigido` SET `data`= '%s' WHERE `id`='%s'" % (matrizDistribucion, self.idSensor))
+        self.c.execute("UPDATE `sensorRigido` SET `data`= '%s', oldCOP = '%s',currentCOP='%s' WHERE `id`='%s'" % (matrizDistribucion, self.old, self.COP, 1))
         self.conn.commit()
 
     def conectarSensor(self):
