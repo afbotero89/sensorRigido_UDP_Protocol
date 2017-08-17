@@ -153,7 +153,6 @@ class Ui_MainWindow(object):
                 if self.sensorConnectionStatus == True:
       
                     buf = self.s.recv(6000)
-                    print(buf)
                     
                     info = [buf[i:i+1] for i in range(0, len(buf), 1)]
                     #try:
