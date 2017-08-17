@@ -82,6 +82,7 @@ class Ui_MainWindow(object):
         self.numberOfPlatforms = 2
         self.intensityAdjustment = 240
 
+        # Parametros de comunicacion
         self.UDP_IP = "192.168.0.124"
         self.UDP_PORT = 10001
 
@@ -313,6 +314,7 @@ class Ui_MainWindow(object):
         self.pushButton.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
         self.pushButton.setGeometry(QtCore.QRect(175, 35, 20, 20))
         self.pushButton.setObjectName("pushButton")
+
 
         self.connectedSensor = QtWidgets.QPushButton(self.centralWidget)
         self.connectedSensor.setStyleSheet("background-color: red; color: white; border-radius: 10px")
