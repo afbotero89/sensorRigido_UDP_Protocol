@@ -573,6 +573,8 @@ class Ui_MainWindow(object):
 ##        try:
         if(self.sensor2Conectado == False):
             self.sensor2Conectado = True
+            self.sqlDataBase()
+            threading.Timer(0.01, self.recibeDatos).start()
 
             self.pushButton_1.setStyleSheet("background-color: blue; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
             self.connectedSensor_1.setStyleSheet("background-color: blue; color: white; border-radius: 10px")
