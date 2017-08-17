@@ -27,6 +27,7 @@ import time
 import sqlite3
 import ast
 import time
+import recvPlataforma1
 ion()
 
 maxint = 2 ** (struct.Struct('i').size * 8 - 1) - 1
@@ -75,6 +76,28 @@ class Ui_MainWindow(object):
         self.defaultNumberOfPlatforms = 2
         self.numberOfPlatforms = 2
         self.intensityAdjustment = 250
+
+        # Sensor 1 configuracion plataforma clara
+        self.UDP_IP1 = "192.168.0.124"
+        self.UDP_PORT1 = 10001
+
+        self.UDP_IP_CLIENT1 = "192.168.0.101"
+        self.UDP_PORT_CLIENT1 = 2233
+
+        self.idSensor1 = "1"
+
+        # Sensor 2 configuracion plataforma oscura
+        self.UDP_IP2 = "192.168.0.124"
+        self.UDP_PORT2 = 10000
+
+        self.UDP_IP_CLIENT2 = "192.168.0.107"
+        self.UDP_PORT_CLIENT2 = 2233
+
+        self.idSensor2 = "2"
+
+        self.visualizarPresion = False
+
+        self.green_red_Button = False
         #plt.gca().invert_yaxis()
             
     def sqlDataBase(self):
@@ -249,16 +272,16 @@ class Ui_MainWindow(object):
         self.label = QtWidgets.QLabel(self.centralWidget)
         self.label.setGeometry(QtCore.QRect(1160, 18, 270, 61))
         self.label.setText("")
-        self.label.setPixmap(QtGui.QPixmap("/Users/EstebanGarcia/Developer/sensorRigido_UDP_Protocol/img/logoGIBIC.png"))
+        self.label.setPixmap(QtGui.QPixmap("img/logoGIBIC.png"))
         self.label.setScaledContents(True)
         self.label.setObjectName("label")
 
-        self.label_1 = QtWidgets.QLabel(self.centralWidget)
-        self.label_1.setGeometry(QtCore.QRect(675, 10, 311, 71))
-        self.label_1.setText("Plantar pressure")
-        self.label_1.setStyleSheet("background-color: black; color:white; font size: 28pt; font-size: 22pt;")
-        self.label_1.setScaledContents(True)
-        self.label_1.setObjectName("label_1")
+        self.titleLabel = QtWidgets.QLabel(self.centralWidget)
+        self.titleLabel.setGeometry(QtCore.QRect(675, 10, 311, 71))
+        self.titleLabel.setText("Plantar pressure")
+        self.titleLabel.setStyleSheet("background-color: black; color:white; font size: 28pt; font-size: 22pt;")
+        self.titleLabel.setScaledContents(True)
+        self.titleLabel.setObjectName("titleLabel")
 
         self.gridLayoutWidget = QtWidgets.QWidget(self.centralWidget)
         self.gridLayoutWidget.setGeometry(QtCore.QRect(30, 100, 1451, 751))
@@ -288,54 +311,28 @@ class Ui_MainWindow(object):
         self.sl.setValue(20)
         self.sl.setGeometry(QtCore.QRect(1170, 93, 200, 31))
         self.sl.setTickPosition(QtWidgets.QSlider.TicksBelow)
-        self.sl.setStyleSheet("background-color: #B0B0B0; border-radius: 10px;")
-
-        # Radio button
-        #self.radioButton = QtWidgets.QRadioButton(self.centralWidget)
-        #self.radioButton.setStyleSheet("background-color: black")
-        #self.radioButton.setChecked(True)
-        #self.radioButton.setGeometry(QtCore.QRect(175, 55, 20, 20))
-        #self.radioButton.setObjectName("radioButton1")
-
-        #self.radioButton_1 = QtWidgets.QRadioButton(self.centralWidget)
-        #self.radioButton_1.setStyleSheet("background-color: black")
-        #self.radioButton_1.setChecked(True)
-        #self.radioButton_1.setGeometry(QtCore.QRect(205, 55, 20, 20))
-        #self.radioButton_1.setObjectName("radioButton2")
-
-        #self.radioButton_2 = QtWidgets.QRadioButton(self.centralWidget)
-        #self.radioButton_2.setStyleSheet("background-color: black")
-        #self.radioButton_2.setChecked(True)
-        #self.radioButton_2.setGeometry(QtCore.QRect(235, 55, 20, 20))
-        #self.radioButton_2.setObjectName("radioButton3")
-
-        # Radio button group
-        #self.groupRadioButton = QtWidgets.QButtonGroup()
-        #self.groupRadioButton.addButton(self.radioButton)
-        #self.groupRadioButton.addButton(self.radioButton_1)
-        #self.groupRadioButton.addButton(self.radioButton_2)  
-        #self.groupRadioButton.setExclusive(False)    
+        self.sl.setStyleSheet("background-color: #B0B0B0; border-radius: 10px;")   
 
         # Push button
         self.pushButton = QtWidgets.QPushButton(self.centralWidget)
         self.pushButton.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-        self.pushButton.setGeometry(QtCore.QRect(175, 35, 20, 20))
+        self.pushButton.setGeometry(QtCore.QRect(160, 35, 20, 20))
         self.pushButton.setObjectName("pushButton")
+
+        self.connectedSensor = QtWidgets.QPushButton(self.centralWidget)
+        self.connectedSensor.setStyleSheet("background-color: gainsboro; color: black; color:black;border-radius: 10px;")
+        self.connectedSensor.setGeometry(QtCore.QRect(10, 30, 140, 32))
+        self.connectedSensor.setObjectName("connectedSensor")
 
         self.pushButton_1 = QtWidgets.QPushButton(self.centralWidget)
         self.pushButton_1.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-        self.pushButton_1.setGeometry(QtCore.QRect(205, 35, 20, 20))
+        self.pushButton_1.setGeometry(QtCore.QRect(360, 35, 20, 20))
         self.pushButton_1.setObjectName("pushButton1")
 
-        #self.pushButton_3 = QtWidgets.QPushButton(self.centralWidget)
-        #self.pushButton_3.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-        #self.pushButton_3.setGeometry(QtCore.QRect(235, 35, 20, 20))
-        #self.pushButton_3.setObjectName("pushButton1")
-
-        self.pushButton_2 = QtWidgets.QPushButton(self.centralWidget)
-        self.pushButton_2.setStyleSheet("background-color: gainsboro; color: black; color:black;border-radius: 10px;")
-        self.pushButton_2.setGeometry(QtCore.QRect(10, 30, 140, 32))
-        self.pushButton_2.setObjectName("pushButton_2")
+        self.connectedSensor_1 = QtWidgets.QPushButton(self.centralWidget)
+        self.connectedSensor_1.setStyleSheet("background-color: gainsboro; color: black; color:black;border-radius: 10px;")
+        self.connectedSensor_1.setGeometry(QtCore.QRect(210, 30, 140, 32))
+        self.connectedSensor_1.setObjectName("connectedSensor")
 
         self.spinBox = QtWidgets.QSpinBox(self.centralWidget)
         self.spinBox.setGeometry(QtCore.QRect(175, 93, 48, 31))
@@ -363,9 +360,12 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "GIBIC group"))
         self.pushButton.setText(_translate("MainWindow", ""))
-        self.pushButton_2.clicked.connect(self.conectarSensor)
+        self.connectedSensor.clicked.connect(self.conectarSensor1)
+        self.connectedSensor_1.clicked.connect(self.conectarSensor2)
         
-        self.pushButton_2.setText(_translate("MainWindow", "Connect"))
+        self.connectedSensor.setText(_translate("MainWindow", "Connect 1"))
+        self.connectedSensor_1.setText(_translate("MainWindow", "Connect 2"))
+
         self.label_2.setText(_translate("MainWindow", "Number of platforms:"))
         self.spinBox.valueChanged.connect(self.valueChangedSpinBox)
         self.sl.valueChanged.connect(self.valuechangeSlider)
@@ -400,7 +400,7 @@ class Ui_MainWindow(object):
             MainWindow.setMinimumSize(QtCore.QSize(1020, 853))
             MainWindow.setMaximumSize(QtCore.QSize(1022, 853))
 
-            self.label_1.setGeometry(QtCore.QRect(425, 10, 311, 71))
+            self.titleLabel.setGeometry(QtCore.QRect(425, 10, 311, 71))
             self.label.setGeometry(QtCore.QRect(740, 18, 270, 61))
             self.spinBox.setGeometry(QtCore.QRect(45, 123, 48, 31))
             self.label_2.setGeometry(QtCore.QRect(5, 100, 151, 16))
@@ -438,7 +438,7 @@ class Ui_MainWindow(object):
             self.spinBox.setGeometry(QtCore.QRect(175, 93, 48, 31))
             self.label_2.setGeometry(QtCore.QRect(35, 100, 151, 16))
 
-            self.label_1.setGeometry(QtCore.QRect(675, 10, 311, 71))
+            self.titleLabel.setGeometry(QtCore.QRect(675, 10, 311, 71))
             MainWindow.resize(1522, 953)
             self.label.setGeometry(QtCore.QRect(1160, 18, 270, 61))
 
@@ -530,28 +530,24 @@ class Ui_MainWindow(object):
             self.imagen.set_data(dataDatosCompletos)
 
         
-    def conectarSensor(self):
+    def conectarSensor1(self):
 ##        try:
         if(self.sensorConectado == False):
             self.sensorConectado = True
             self.sqlDataBase()
             threading.Timer(0.01, self.recibeDatos).start()
 
-            try:
-                self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='1'" % 'True')
-                self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='2'" % 'True')
 
-                self.pushButton.setStyleSheet("background-color: blue; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-                self.pushButton_1.setStyleSheet("background-color: blue; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
- #               self.pushButton_3.setStyleSheet("background-color: blue; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
+            self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='1'" % 'True')
 
-                self.pushButton.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-                self.pushButton_1.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
- #               self.pushButton_3.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-                #self.pushButton.setText("Sensor conectado")
-                self.pushButton_2.setText("Disconnect")
-            except:
-                pass
+            self.pushButton.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
+            
+            self.connectedSensor.setText("Disconnect 1")
+
+            self.t = threading.Thread(target = recvPlataforma1.Ui_MainWindow, args=(self.UDP_IP1, self.UDP_PORT1, self.UDP_IP_CLIENT1, self.UDP_PORT_CLIENT1, self.idSensor1,))
+            self.t.IsBackground = True;
+            self.t.start()
+
             print("Sensor conectado")
             self.conn.commit()
 
@@ -561,14 +557,43 @@ class Ui_MainWindow(object):
         else:
             try:
                 self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='1'" % 'False')
-                self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='2'" % 'False')
 
                 self.sensorConectado = False
                 self.pushButton.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
+                self.connectedSensor.setText("Connect 1")
+            except:
+                pass
+                
+            self.conn.commit()
+            print("desconecta sensor")
+
+    def conectarSensor2(self):
+##        try:
+        if(self.sensorConectado == False):
+            self.sensorConectado = True
+
+            self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='2'" % 'True')
+
+            self.pushButton_1.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
+            self.connectedSensor_1.setText("Disconnect 2")
+
+            self.s = threading.Thread(target = recvPlataforma1.Ui_MainWindow, args=(self.UDP_IP2, self.UDP_PORT2, self.UDP_IP_CLIENT2, self.UDP_PORT_CLIENT2, self.idSensor2,))
+            self.s.IsBackground = True;
+            self.s.start()
+
+            print("Sensor conectado")
+            self.conn.commit()
+
+            self.msg.exec_()
+            print("continua !!!")
+
+        else:
+            try:
+                self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='2'" % 'False')
+
+                self.sensorConectado = False
                 self.pushButton_1.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
- #               self.pushButton_3.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-                #self.pushButton.setText("Conectar")
-                self.pushButton_2.setText("Connect")
+                self.connectedSensor_1.setText("Connect 2")
             except:
                 pass
                 

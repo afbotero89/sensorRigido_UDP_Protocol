@@ -83,9 +83,9 @@ class Ui_MainWindow(object):
         self.intensityAdjustment = 240
 
         self.UDP_IP = "192.168.0.124"
-        self.UDP_PORT = 10000
+        self.UDP_PORT = 10001
 
-        self.UDP_IP_CLIENT = "192.168.0.111"
+        self.UDP_IP_CLIENT = "192.168.0.101"
         self.UDP_PORT_CLIENT = 2233
 
         self.idSensor = "1"
@@ -267,16 +267,16 @@ class Ui_MainWindow(object):
         self.label = QtWidgets.QLabel(self.centralWidget)
         self.label.setGeometry(QtCore.QRect(650, 18, 280, 61))
         self.label.setText("")
-        self.label.setPixmap(QtGui.QPixmap("/Applications/XAMPP/xamppfiles/htdocs/apps_rigido_flexible_UDP/appSensorFlexibleWebLocalMatplotlib/img/logoGIBIC.png"))
+        self.label.setPixmap(QtGui.QPixmap("img/logoGIBIC.png"))
         self.label.setScaledContents(True)
         self.label.setObjectName("label")
 
-        self.label_1 = QtWidgets.QLabel(self.centralWidget)
-        self.label_1.setGeometry(QtCore.QRect(375, 10, 211, 71))
-        self.label_1.setText("Sensor de presión")
-        self.label_1.setStyleSheet("background-color: black; color:white; font size: 28pt; font-size: 22pt;")
-        self.label_1.setScaledContents(True)
-        self.label_1.setObjectName("label_1")
+        self.titleLabel = QtWidgets.QLabel(self.centralWidget)
+        self.titleLabel.setGeometry(QtCore.QRect(375, 10, 211, 71))
+        self.titleLabel.setText("Sensor de presión")
+        self.titleLabel.setStyleSheet("background-color: black; color:white; font size: 28pt; font-size: 22pt;")
+        self.titleLabel.setScaledContents(True)
+        self.titleLabel.setObjectName("titleLabel")
 
         self.gridLayoutWidget = QtWidgets.QWidget(self.centralWidget)
         self.gridLayoutWidget.setGeometry(QtCore.QRect(-70, 90, 1051, 751))
@@ -306,33 +306,7 @@ class Ui_MainWindow(object):
         self.sl.setMaximum(250)
         self.sl.setValue(20)
         self.sl.setGeometry(QtCore.QRect(1300, 93, 200, 31))
-        self.sl.setTickPosition(QtWidgets.QSlider.TicksBelow)
-
-        # Radio button
-        #self.radioButton = QtWidgets.QRadioButton(self.centralWidget)
-        #self.radioButton.setStyleSheet("background-color: black")
-        #self.radioButton.setChecked(True)
-        #self.radioButton.setGeometry(QtCore.QRect(175, 55, 20, 20))
-        #self.radioButton.setObjectName("radioButton1")
-
-        #self.radioButton_1 = QtWidgets.QRadioButton(self.centralWidget)
-        #self.radioButton_1.setStyleSheet("background-color: black")
-        #self.radioButton_1.setChecked(True)
-        #self.radioButton_1.setGeometry(QtCore.QRect(205, 55, 20, 20))
-        #self.radioButton_1.setObjectName("radioButton2")
-
-        #self.radioButton_2 = QtWidgets.QRadioButton(self.centralWidget)
-        #self.radioButton_2.setStyleSheet("background-color: black")
-        #self.radioButton_2.setChecked(True)
-        #self.radioButton_2.setGeometry(QtCore.QRect(235, 55, 20, 20))
-        #self.radioButton_2.setObjectName("radioButton3")
-
-        # Radio button group
-        #self.groupRadioButton = QtWidgets.QButtonGroup()
-        #self.groupRadioButton.addButton(self.radioButton)
-        #self.groupRadioButton.addButton(self.radioButton_1)
-        #self.groupRadioButton.addButton(self.radioButton_2)  
-        #self.groupRadioButton.setExclusive(False)    
+        self.sl.setTickPosition(QtWidgets.QSlider.TicksBelow) 
 
         # Push button
         self.pushButton = QtWidgets.QPushButton(self.centralWidget)
@@ -340,31 +314,10 @@ class Ui_MainWindow(object):
         self.pushButton.setGeometry(QtCore.QRect(175, 35, 20, 20))
         self.pushButton.setObjectName("pushButton")
 
-        #self.pushButton_1 = QtWidgets.QPushButton(self.centralWidget)
-        #self.pushButton_1.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-        #self.pushButton_1.setGeometry(QtCore.QRect(205, 35, 20, 20))
-        #self.pushButton_1.setObjectName("pushButton1")
-
-        #self.pushButton_3 = QtWidgets.QPushButton(self.centralWidget)
-        #self.pushButton_3.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-        #self.pushButton_3.setGeometry(QtCore.QRect(235, 35, 20, 20))
-        #self.pushButton_3.setObjectName("pushButton1")
-
-        self.pushButton_2 = QtWidgets.QPushButton(self.centralWidget)
-        self.pushButton_2.setStyleSheet("background-color: red; color: white; border-radius: 10px")
-        self.pushButton_2.setGeometry(QtCore.QRect(10, 30, 140, 32))
-        self.pushButton_2.setObjectName("pushButton_2")
-
-        #self.spinBox = QtWidgets.QSpinBox(self.centralWidget)
-        #self.spinBox.setGeometry(QtCore.QRect(195, 93, 48, 31))
-        #self.spinBox.setMinimum(1)
-        #self.spinBox.setMaximum(3)
-        #self.spinBox.setValue(3)
-        #self.spinBox.setObjectName("spinBox")
-
-        #self.label_2 = QtWidgets.QLabel(self.centralWidget)
-        #self.label_2.setGeometry(QtCore.QRect(35, 100, 151, 16))
-        #self.label_2.setObjectName("label_2")
+        self.connectedSensor = QtWidgets.QPushButton(self.centralWidget)
+        self.connectedSensor.setStyleSheet("background-color: red; color: white; border-radius: 10px")
+        self.connectedSensor.setGeometry(QtCore.QRect(10, 30, 140, 32))
+        self.connectedSensor.setObjectName("connectedSensor")
 
         MainWindow.setCentralWidget(self.centralWidget)
 
@@ -375,9 +328,9 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "GIBIC group"))
         self.pushButton.setText(_translate("MainWindow", ""))
-        self.pushButton_2.clicked.connect(self.conectarSensor)
+        self.connectedSensor.clicked.connect(self.conectarSensor)
         
-        self.pushButton_2.setText(_translate("MainWindow", "Conectar sensor"))
+        self.connectedSensor.setText(_translate("MainWindow", "Conectar sensor"))
         #self.label_2.setText(_translate("MainWindow", "Número de plataformas:"))
         #self.spinBox.valueChanged.connect(self.valueChangedSpinBox)
         self.sl.valueChanged.connect(self.valuechangeSlider)
@@ -421,8 +374,8 @@ class Ui_MainWindow(object):
                     #plt.set_cmap('jet')
                     if(self.green_red_Button == False):
                         self.green_red_Button = True
-                        self.pushButton_2.setStyleSheet("background-color: green; color: white; border-radius: 10px")
-                        self.pushButton_2.setText("Desconectar sensor")
+                        self.connectedSensor.setStyleSheet("background-color: green; color: white; border-radius: 10px")
+                        self.connectedSensor.setText("Desconectar sensor")
                         time.sleep(0.1)
                         self.pushButton.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
 
@@ -463,17 +416,8 @@ class Ui_MainWindow(object):
             self.sqlDataBase()
             try:
 
-                #self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='1'" % 'True')
-                #self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='2'" % 'True')
-
-                #self.pushButton_1.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-                #self.pushButton_3.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-
-                #self.pushButton_1.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-                #self.pushButton_3.setStyleSheet("background-color: green; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-                #self.pushButton.setText("Sensor conectado")
-                self.pushButton_2.setText("Conectando...")
-                self.pushButton_2.setStyleSheet("background-color: blue; color: white; border-radius: 10px")
+                self.connectedSensor.setText("Conectando...")
+                self.connectedSensor.setStyleSheet("background-color: blue; color: white; border-radius: 10px")
                 self.pushButton.setStyleSheet("background-color: blue; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
                 self.visualizarPresion = True
 
@@ -495,11 +439,9 @@ class Ui_MainWindow(object):
                 self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='2'" % 'False')
 
                 self.pushButton.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-                self.pushButton_2.setStyleSheet("background-color: red; color: white; border-radius: 10px")
-                #self.pushButton_1.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-                #self.pushButton_3.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
-                #self.pushButton.setText("Conectar")
-                self.pushButton_2.setText("Conectar sensor")
+                self.connectedSensor.setStyleSheet("background-color: red; color: white; border-radius: 10px")
+
+                self.connectedSensor.setText("Conectar sensor")
                 self.visualizarPresion = False
                 self.green_red_Button = False
             except:
