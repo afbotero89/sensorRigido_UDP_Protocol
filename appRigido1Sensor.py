@@ -14,19 +14,14 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
-import socket
-import sys
-import binascii
 import threading
 import numpy as np
-import socket
 import scipy.ndimage
 import sys, struct
 from pylab import *
 import time
 import sqlite3
 import ast
-import time
 import recvPlataforma1
 ion()
 
@@ -75,8 +70,6 @@ class Ui_MainWindow(object):
         #self.contour = plt.contour(data)
         
         self.imagen = ax.imshow(self.initData, interpolation = 'nearest')
-        self.contador = 0
-        self.contour_axis = plt.gca()
         self.sensorConectado = False
         self.defaultNumberOfPlatforms = 1
         self.numberOfPlatforms = 2
@@ -453,7 +446,6 @@ class Ui_MainWindow(object):
                       
 
 if __name__ == "__main__":
-    import sys
     app = QtWidgets.QApplication(sys.argv)
     app.setStyleSheet('QMainWindow{background-color: #222222; border:2px solid black;}')
     MainWindow = QtWidgets.QMainWindow()
