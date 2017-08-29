@@ -92,12 +92,14 @@ class Ui_MainWindow(object):
         self.green_red_Button_Sensor1 = False
 
         self.green_red_Button_Sensor2 = False
-            
+    
+    # sqlDataBase: Configuracion base de datos         
     def sqlDataBase(self):
         
         self.conn = sqlite3.connect('distribucionPresionSensorRigido.db', check_same_thread=False, timeout=10)
         self.c = self.conn.cursor()
-        
+    
+    # setupUI: Funcion para configurar interfaz, el codigo es obtenido luego de traducir el archivo mainwindow.ui a mainwindow.py
     def setupUi(self, MainWindow):
         
         MainWindow.setObjectName("MainWindow")
@@ -455,7 +457,7 @@ class Ui_MainWindow(object):
             MainWindow.setMinimumSize(QtCore.QSize(1520, 853))
             MainWindow.setMaximumSize(QtCore.QSize(1522, 853))
 
-
+    # recibeDatos: Funcion para dibujar distribucion de presion
     def recibeDatos(self):
 
         self.dibujarDistribucionPresion(self.vectorDesencriptado)
@@ -524,7 +526,7 @@ class Ui_MainWindow(object):
             dataDatosCompletos = scipy.ndimage.zoom(matrizCompleta, 4)
             self.imagen.set_data(dataDatosCompletos)
 
-        
+    # conectarSensor1: Funcion llamada por el boton para conectar sensor1 (tiene la funcion de conectar y desconectar)   
     def conectarSensor1(self):
 ##        try:
         if(self.sensor1Conectado == False):
@@ -536,6 +538,7 @@ class Ui_MainWindow(object):
             self.connectedSensor.setStyleSheet("background-color: blue; color: white; border-radius: 10px")
             self.connectedSensor.setText("Connecting ...")
 
+            # Hilo para visualizar distribucion de presion sensor 1
             self.t = threading.Thread(target = recvPlataforma1.Ui_MainWindow, args=(self.UDP_IP1, self.UDP_PORT1, self.UDP_IP_CLIENT1, self.UDP_PORT_CLIENT1, self.idSensor1,))
             self.t.IsBackground = True;
             self.t.start()
@@ -556,7 +559,7 @@ class Ui_MainWindow(object):
                 
             self.conn.commit()
 
-
+    # conectarSensor2: Funcion llamada por el boton para conectar sensor2 (tiene la funcion de conectar y desconectar)        
     def conectarSensor2(self):
 ##        try:
         if(self.sensor2Conectado == False):
@@ -568,6 +571,7 @@ class Ui_MainWindow(object):
             self.connectedSensor_1.setStyleSheet("background-color: blue; color: white; border-radius: 10px")
             self.connectedSensor_1.setText("Connecting ...")
 
+            # Hilo para visualizar distribucion de presion sensor 2
             self.s = threading.Thread(target = recvPlataforma1.Ui_MainWindow, args=(self.UDP_IP2, self.UDP_PORT2, self.UDP_IP_CLIENT2, self.UDP_PORT_CLIENT2, self.idSensor2,))
             self.s.IsBackground = True;
             self.s.start()

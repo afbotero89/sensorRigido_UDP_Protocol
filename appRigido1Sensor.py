@@ -88,12 +88,14 @@ class Ui_MainWindow(object):
         self.green_red_Button = False
         
         #plt.gca().invert_yaxis()
-            
+
+    # sqlDataBase: Configuracion base de datos         
     def sqlDataBase(self):
         
         self.conn = sqlite3.connect('distribucionPresionSensorRigido.db', check_same_thread=False, timeout=10)
         self.c = self.conn.cursor()
-        
+    
+    # setupUI: Funcion para configurar interfaz, el codigo es obtenido luego de traducir el archivo mainwindow.ui a mainwindow.py
     def setupUi(self, MainWindow):
         
         MainWindow.setObjectName("MainWindow")
@@ -330,13 +332,11 @@ class Ui_MainWindow(object):
         #self.spinBox.valueChanged.connect(self.valueChangedSpinBox)
         self.sl.valueChanged.connect(self.valuechangeSlider)
 
+        # Hilo para visualizar distribucion de presion en interfaz principal 
         self.t = threading.Thread(target = self.recibeDatos)
         self.t.IsBackground = True;
         self.t.start()
-        #self.groupRadioButton.buttonClicked[int].connect(self.ButtonGroupClicked)
 
-    #def ButtonGroupClicked(self,clicked):
-        #print("radio button clicked",clicked*(-1))
 
     def valuechangeSlider(self):
         print("value change slider")

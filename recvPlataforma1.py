@@ -37,7 +37,8 @@ class Ui_MainWindow(object):
         self.sensorConnectionStatus = False
         self.connectionRequest = False
         self.conectarSensor()
-        
+
+    # socketConnection: funcion para gestionar la conexion con el sensor rigido      
     def socketConnection(self):
         
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -64,7 +65,8 @@ class Ui_MainWindow(object):
         self.connectionRequest = False
         self.sensorConnectionStatus = True
         self.sqlDataBase()
-        
+    
+    # sqlDataBase: Funcion para configurar y gestionar la base de datos 
     def sqlDataBase(self):
         print('sql database')
         self.conn = sqlite3.connect('distribucionPresionSensorRigido.db', timeout=10)
@@ -83,7 +85,9 @@ class Ui_MainWindow(object):
             self.c.execute("INSERT INTO sensorRigido VALUES ('%s','initValue sensor 1','True')" % self.idSensor)
         self.c.execute("UPDATE `sensorRigido` SET `connectionStatus` = '%s' WHERE `id`='%s'" % ('True',self.idSensor))
         self.conn.commit()
-        
+    
+    # desencriptarVector: Funcion para la desencriptacion del vector segun el protocolo de comunicacion
+    # parametros: vector, este vector es el que se recibe por medio del modulo wifi    
     def desencriptarVector(self,vector):
         n = len(vector);
         fil = 0;
@@ -115,7 +119,8 @@ class Ui_MainWindow(object):
                     matriz[fil][col] = datos;
                     col = col + 1;
                 banderacero = 0;
-                
+
+    # recibeDatos: funcion que hace lectura del buffer y llama las funciones para descencriptar y insertar datos en la base de datos.   
     def recibeDatos(self):
  #       self.sc.settimeout(None)
         while True:
@@ -145,11 +150,14 @@ class Ui_MainWindow(object):
                         if self.iniciaTramaDeDatos == False:
                           self.vectorDatosDistribucionPresion.append(valorDecimal)
                           
+                          # Segun el protocolo establecido, el 255 indica fin de trama, los dos datos anteriores son la longitud de los datos (cheksum)
+                          # van en dos bytes, por tal razon es necesario la conversion self.numeroBytes = self.primerByte*255 + self.segundoByte
                           if valorDecimal == 255:
                             self.primerByte = self.vectorDatosDistribucionPresion[len(self.vectorDatosDistribucionPresion) - 3]
                             self.segundoByte = self.vectorDatosDistribucionPresion[len(self.vectorDatosDistribucionPresion) - 2]
                             self.numeroBytes = self.primerByte*255 + self.segundoByte
 
+                            # El numero de bytes enviado por el sensor debe ser igual al desencriptado (checksum)
                             if(self.numeroBytes == len(self.vectorDatosDistribucionPresion) - 3):
 
                                 self.vectorDatosDistribucionPresion=self.vectorDatosDistribucionPresion[:len(self.vectorDatosDistribucionPresion)-1]
@@ -184,7 +192,8 @@ class Ui_MainWindow(object):
                     print("sensor desconectado")
             except:
                 pass
-        
+    # Funcion para insertar matriz desencriptada en la base de datos.
+    # Parametros: matrizDistribucion, matriz desencriptada deacuerdo con el protocolo.    
     def dibujarDistribucionPresion(self, matrizDistribucion):
 
         maximoValor = 0
