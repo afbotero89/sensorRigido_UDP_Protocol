@@ -2,31 +2,26 @@
 
 # Form implementation generated from reading ui file 'rigidoBotonesConexion.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: GIBIC group
 #
-# WARNING! All changes made in this file will be lost!
+# Sensor de presion rigido: visualiza vectores de presion
+#
+# Ejecucion, en terminal: python3 appRigido1Sensor.py
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import *
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
-import socket
-import sys
-import binascii
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import threading
 import numpy as np
-import socket
 import scipy.ndimage
 import sys, struct
 from pylab import *
 import time
 import sqlite3
-import ast
-import time
 import recvPlataforma1
 import ast
 ion()
@@ -43,9 +38,6 @@ class Ui_MainWindow(object):
         self.ax.set_axis_off()
         self.fig.add_axes(self.ax)
         self.fig.canvas.draw()
-        #self.fig.canvas.toolbar.pack_forget()
-        #plt.show(block=False)
-        self.vectorDatosDistribucionPresion = []
         self.vectorDesencriptado = []
         self.iniciaTramaDeDatos = False
         self.columnas = 48;
@@ -56,10 +48,7 @@ class Ui_MainWindow(object):
         axis.get_yaxis().set_visible(False)
         matriz = [[0 for x in range(self.columnas)] for x in range(self.filas)] 
         matriz[0][0] = 255
-        matrizSensor2 = [[0 for x in range(self.columnas)] for x in range(self.filas)] 
-        #matrizSensor2[0][0] = 255
-        matrizCompleta = np.concatenate((matriz,matrizSensor2),axis=1)
-        matrizCompleta[0][0] = 255
+
         plt.set_cmap('jet')
         self.ax = plt.gca()
 
@@ -69,42 +58,36 @@ class Ui_MainWindow(object):
         self.cbar = self.fig.colorbar(self.ax.imshow(matriz), ticks=[5,125,250],cax=cax)
         self.cbar.ax.set_yticklabels(['Baja','Medio','Alto'])
         self.cbar.ax.tick_params(labelcolor='w', labelsize=12)
-        #divider = make_axes_locatable(plt.gca())
-        #cax = divider.append_axes("right","5%",pad="3%")
-        #plt.colorbar(plt.imshow(matrizCompleta),cax=cax)
         
         self.initData = scipy.ndimage.zoom(matriz, 3)
-        #self.contour = plt.contour(data)
         
         self.imagen = self.ax.imshow(self.initData, interpolation = 'nearest')
-        self.contador = 0
-        self.contour_axis = plt.gca()
+
         self.sensorConectado = False
-        self.defaultNumberOfPlatforms = 1
-        self.numberOfPlatforms = 2
         self.intensityAdjustment = 240
 
-        # Parametros de comunicacion
+        # Parametros de comunicacion: Configuracion
         self.UDP_IP = "192.168.0.124"
         self.UDP_PORT = 10000
 
-        self.UDP_IP_CLIENT = "192.168.0.107"
+        self.UDP_IP_CLIENT = "192.168.0.106"
         self.UDP_PORT_CLIENT = 2233
 
         self.idSensor = "1"
+
         self.visualizarPresion = False
 
         self.green_red_Button = False
 
         self.activePressureVectors = False
         
-        #plt.gca().invert_yaxis()
-            
+    # sqlDataBase: Configuracion base de datos        
     def sqlDataBase(self):
         
         self.conn = sqlite3.connect('distribucionPresionSensorRigido.db', check_same_thread=False, timeout=10)
         self.c = self.conn.cursor()
         
+    # setupUI: Funcion para configurar interfaz, el codigo es obtenido luego de traducir el archivo mainwindow.ui a mainwindow.py
     def setupUi(self, MainWindow):
         
         MainWindow.setObjectName("MainWindow")
@@ -337,15 +320,13 @@ class Ui_MainWindow(object):
         self.pushButtonPressureVector.clicked.connect(self.pressureVectors)
         
         self.connectedSensor.setText(_translate("MainWindow", "Conectar sensor"))
-        #self.label_2.setText(_translate("MainWindow", "Número de plataformas:"))
 
+        # Hilo para visualizar distribucion de presion en interfaz principal 
         self.t = threading.Thread(target = self.recibeDatos)
         self.t.IsBackground = True;
         self.t.start()
-        #self.groupRadioButton.buttonClicked[int].connect(self.ButtonGroupClicked)
 
-    #def ButtonGroupClicked(self,clicked):
-        #print("radio button clicked",clicked*(-1))
+    # Funcion llamada por el boton para activar los vectores de presion (visualiza vectores de presion)
     def pressureVectors(self):
         if(self.activePressureVectors == False):
             self.activePressureVectors = True
@@ -356,18 +337,17 @@ class Ui_MainWindow(object):
             self.pushButtonPressureVector.setStyleSheet("background-color: red; border-style: outset; border-width: 1px; border-radius: 10px; border-color: beige; padding: 6px;")
             self.pushButtonPressureVector.setText("OFF Vectors")
 
+    # recibeDatos: Funcion para dibujar distribucion de presion
     def recibeDatos(self):
         while True:
             self.dibujarDistribucionPresion(self.vectorDesencriptado)
             time.sleep(0.05) 
-        #print(time.strftime("%H:%M:%S"))
-        #threading.Timer(0.1, self.recibeDatos).start()
 
-        
+
     def dibujarDistribucionPresion(self, matrizDistribucion):
 
         try:
-            #for row in self.c.execute("SELECT * FROM sensorRigido WHERE `id`='1'"):
+
             if(self.visualizarPresion == True):
                 for row in self.c.execute("SELECT * FROM sensorRigido WHERE 1"):
                     if row[0] == '1':
@@ -399,18 +379,12 @@ class Ui_MainWindow(object):
                             else:
                                 COP[i] = (COP[i])*3
                                 old[i] = (old[i])*3
-                    #rotate_imgMatriz1 = scipy.ndimage.rotate(matrizSensor1, 90)
+
                     rotate_imgMatriz2 = scipy.ndimage.rotate(matrizSensor2, 180)
 
                     matriz2espejo = np.array(rotate_imgMatriz2)
                     matriz2espejo = matriz2espejo[::-1,:]
                     matriz2espejo = matriz2espejo.tolist()
-
-                    matrizCompleta = np.concatenate((matriz2espejo, matriz2espejo), axis=1)
-                    for i in range(48):
-                        for j in range(96):
-                            if matrizCompleta[i][j] > 200:
-                                matrizCompleta[i][j] = self.intensityAdjustment
 
                     if(self.activePressureVectors == False):
                         dataDatosCompletos = scipy.ndimage.zoom(matriz2espejo, 5)
@@ -441,7 +415,8 @@ class Ui_MainWindow(object):
                 pass
         except:
             pass
-      
+    
+    # conectarSensor: Funcion llamada por el boton para conectar sensor (tiene la funcion de conectar y desconectar)
     def conectarSensor(self):
 ##        try:
         if(self.sensorConectado == False):
@@ -461,9 +436,6 @@ class Ui_MainWindow(object):
             except:
                 pass
             print("Sensor conectado")
-            self.conn.commit()
-
-            #self.msg.exec_()
 
         else:
             self.sensorConectado = False
@@ -484,7 +456,6 @@ class Ui_MainWindow(object):
                       
 
 if __name__ == "__main__":
-    import sys
     app = QtWidgets.QApplication(sys.argv)
     app.setStyleSheet('QMainWindow{background-color: #222222; border:2px solid black;}')
     MainWindow = QtWidgets.QMainWindow()
