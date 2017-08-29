@@ -11,22 +11,16 @@ from PyQt5.QtCore import *
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from mpl_toolkits.axes_grid1 import make_axes_locatable, axes_size
-import socket
-import sys
 import binascii
 import threading
 import numpy as np
-import socket
 import scipy.ndimage
 import sys, struct
 from pylab import *
 import time
 import sqlite3
 import ast
-import time
 import recvPlataforma1
 ion()
 
@@ -52,33 +46,30 @@ class Ui_MainWindow(object):
         axis = plt.gca()
         axis.get_xaxis().set_visible(False)
         axis.get_yaxis().set_visible(False)
+
         matriz = [[0 for x in range(self.columnas)] for x in range(self.filas)] 
         matriz[0][0] = 255
         matrizSensor2 = [[0 for x in range(self.columnas)] for x in range(self.filas)] 
-        #matrizSensor2[0][0] = 255
+
         matrizCompleta = np.concatenate((matriz,matrizSensor2),axis=1)
         matrizCompleta[0][0] = 255
         plt.set_cmap('jet')
 
         self.cbar = self.fig.colorbar(plt.imshow(matrizCompleta), ticks=[5,125,250], fraction=0.024, pad=0.05)
         self.cbar.ax.set_yticklabels(['Baja','Medio','Alto'])
-        #divider = make_axes_locatable(plt.gca())
-        #cax = divider.append_axes("right","5%",pad="3%")
-        #plt.colorbar(plt.imshow(matrizCompleta),cax=cax)
         
         self.initData = scipy.ndimage.zoom(matrizCompleta, 3)
-        #self.contour = plt.contour(data)
         
         self.imagen = plt.imshow(self.initData, interpolation = 'nearest')
-        self.contador = 0
+
         self.contour_axis = plt.gca()
+
         self.sensor1Conectado = False
         self.sensor2Conectado = False
-        self.defaultNumberOfPlatforms = 2
+
         self.numberOfPlatforms = 2
         self.intensityAdjustment = 250
 
-        self.sensor1Conectado = False
         
         # Sensor 1 configuracion plataforma clara
         self.UDP_IP1 = "192.168.0.124"
@@ -93,17 +84,14 @@ class Ui_MainWindow(object):
         self.UDP_IP2 = "192.168.0.124"
         self.UDP_PORT2 = 10000
 
-        self.UDP_IP_CLIENT2 = "192.168.0.107"
+        self.UDP_IP_CLIENT2 = "192.168.0.106"
         self.UDP_PORT_CLIENT2 = 2233
 
         self.idSensor2 = "2"
 
-        self.visualizarPresion = False
-
         self.green_red_Button_Sensor1 = False
 
         self.green_red_Button_Sensor2 = False
-        #plt.gca().invert_yaxis()
             
     def sqlDataBase(self):
         
@@ -602,7 +590,6 @@ class Ui_MainWindow(object):
                       
 
 if __name__ == "__main__":
-    import sys
     app = QtWidgets.QApplication(sys.argv)
     app.setStyleSheet('QMainWindow{background-color: #222222; border:2px solid black;}')
     MainWindow = QtWidgets.QMainWindow()

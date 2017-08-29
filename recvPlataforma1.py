@@ -2,31 +2,19 @@
 
 # Form implementation generated from reading ui file 'rigidoBotonesConexion.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: GIBIC group
 #
 # WARNING! All changes made in this file will be lost!
 
 
 import socket
-import sys
 import binascii
-import threading
-import numpy as np
-import socket
 import scipy.ndimage
 import sys, struct
 #from pylab import *
 import time
 import sqlite3
-#ion()
 
-#UDP_IP = sys.argv[1]
-#UDP_PORT = int(sys.argv[2])
-
-#UDP_IP_CLIENT = sys.argv[3]
-#UDP_PORT_CLIENT = int(sys.argv[4])
-
-#idSensor = sys.argv[5]
 
 maxint = 2 ** (struct.Struct('i').size * 8 - 1) - 1
 sys.setrecursionlimit(maxint)
@@ -45,8 +33,7 @@ class Ui_MainWindow(object):
         self.iniciaTramaDeDatos = False
         self.columnas = 48;
         self.filas = 48;
-        matriz = [[0 for x in range(self.columnas)] for x in range(self.filas)] 
-        matriz[0][0] = 255
+
         self.sensorConnectionStatus = False
         self.connectionRequest = False
         self.conectarSensor()
@@ -72,10 +59,6 @@ class Ui_MainWindow(object):
                     break
             except:
                 print("Time out error")
-
-            
-
-            #self.sc.send(('*').encode())
             print("conecto")
         self.s.settimeout(2)
         self.connectionRequest = False
